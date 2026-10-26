@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>✨ بلانر أبيه</title>
+<meta name="description" content="نظام ذكي متكامل لإدارة المحتوى">
+<meta name="theme-color" content="#C08485">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="أبية">
+<link rel="apple-touch-icon" id="appleIcon">
+<link rel="icon" id="favIcon">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{
+    --main:#C08485; --bg:#FAF0E6; --card:#FFFFFF;
+    --line:#E8DDD3; --text:#8B5E5F; --dark:#6B4445;
+    --success:#7BAE7F; --warn:#E0A458; --danger:#C0574F; --info:#7A9CB8;
+    --purple:#9B7EB5; --teal:#5FA8A0;
+    --shadow:0 2px 12px rgba(192,132,133,.12);
+    --shadow-lg:0 8px 30px rgba(192,132,133,.25);
+    --radius:16px;
+  }
+  [data-theme="dark"]{
+    --main:#D9A5A6; --bg:#1F191B; --card:#2A2224;
+    --line:#3E3335; --text:#E8D5D6; --dark:#F5E6E7;
+    --shadow:0 2px 12px rgba(0,0,0,.4);
+    --shadow-lg:0 8px 30px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,sans-serif;
+    -webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);padding:16px;line-height:1.7;
+    transition:.3s;padding-bottom:90px;overflow-x:hidden}
+  .container{max-width:1200px;margin:0 auto}
+
+  header{display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:10px;margin-bottom:14px;position:sticky;top:0;
+    background:var(--bg);padding:10px 0;z-index:50;border-bottom:1px solid var(--line)}
+  h1{color:var(--main);font-size:24px;display:flex;align-items:center;gap:8px}
+  .subtitle{font-size:11px;color:var(--text);opacity:.8}
+  .header-actions{display:flex;gap:5px;flex-wrap:wrap}
+  .icon-btn{background:var(--card);border:1px solid var(--line);color:var(--dark);
+    padding:8px 11px;border-radius:10px;cursor:pointer;font-size:14px;transition:.2s;
+    position:relative}
+  .icon-btn:hover{background:var(--main);color:#fff;transform:translateY(-2px)}
+  
+  .search-bar{position:relative;margin-bottom:14px}
+  .search-bar input{padding-right:40px;font-size:14px}
+  .search-bar::before{content:'🔍';position:absolute;right:14px;top:50%;
+    transform:translateY(-50%);font-size:16px;z-index:1;pointer-events:none}
+  .search-results{position:absolute;top:100%;right:0;left:0;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;max-height:300px;overflow-y:auto;
+    z-index:200;margin-top:4px;box-shadow:var(--shadow-lg);display:none}
+  .search-results.show{display:block}
+  .search-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line);
+    font-size:13px;transition:.2s}
+  .search-item:hover{background:rgba(192,132,133,.1)}
+  .search-item .cat{font-size:10px;color:var(--main);font-weight:700}
+
+  .stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));
+    gap:8px;margin-bottom:14px}
+  .stat-card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:10px 12px;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow);
+    transition:.2s;cursor:default}
+  .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+  .stat-card .emoji{font-size:22px}
+  .stat-card .info{display:flex;flex-direction:column;overflow:hidden}
+  .stat-card .val{font-weight:700;color:var(--main);font-size:16px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat-card .lbl{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin:14px 0}
+  .tab{background:var(--card);border:1px solid var(--line);color:var(--dark);
+    padding:8px 12px;border-radius:20px;cursor:pointer;font-size:12px;
+    font-weight:600;transition:.2s;white-space:nowrap}
+  .tab:hover{background:var(--main);color:#fff}
+  .tab.active{background:var(--main);color:#fff;border-color:var(--main);
+    box-shadow:0 4px 10px rgba(192,132,133,.3)}
+
+  .page{display:none}
+  .page.active{display:block;animation:fade .3s}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+  .card h2{color:var(--main);font-size:16px;margin-bottom:12px;
+    border-bottom:2px solid var(--line);padding-bottom:8px;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+  .card h2 .badge{background:var(--main);color:#fff;font-size:10px;
+    padding:3px 10px;border-radius:10px;font-weight:600}
+
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  label{font-size:12px;font-weight:600;display:block;margin-bottom:4px;color:var(--dark)}
+  input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);
+    border-radius:8px;background:var(--bg);color:var(--dark);font-size:13px;
+    outline:none;transition:.2s;font-family:inherit}
+  input:focus,select:focus,textarea:focus{border-color:var(--main);
+    box-shadow:0 0 0 3px rgba(192,132,133,.15)}
+  textarea{min-height:70px;resize:vertical}
+
+  .btn{padding:9px 20px;border:none;border-radius:10px;cursor:pointer;
+    font-size:13px;font-weight:600;transition:.2s;margin-top:10px}
+  .btn-primary{background:var(--main);color:#fff}
+  .btn-primary:hover{background:var(--dark);transform:translateY(-1px)}
+  .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+  .btn-danger:hover{background:var(--danger);color:#fff}
+  .btn-info{background:var(--info);color:#fff}
+  .btn-purple{background:var(--purple);color:#fff}
+  .btn-sm{padding:5px 10px;font-size:11px;margin:0}
+
+  .table-wrap{overflow-x:auto;border-radius:10px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:500px}
+  th{background:var(--main);color:#fff;padding:9px 6px;text-align:center;
+    font-weight:600;font-size:12px}
+  td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--line)}
+  tr:hover td{background:rgba(192,132,133,.05)}
+  .del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:15px}
+  .chk{width:18px;height:18px;accent-color:var(--main);cursor:pointer}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+  .kpi{background:linear-gradient(135deg,var(--bg),var(--card));
+    border-radius:12px;padding:12px;text-align:center;border:1px solid var(--line);
+    position:relative;overflow:hidden}
+  .kpi::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;
+    background:var(--main);opacity:.05;border-radius:50%;transform:translate(30%,-30%)}
+  .kpi .val{font-size:20px;font-weight:700;color:var(--main);position:relative}
+  .kpi .lbl{font-size:11px;margin-top:4px;position:relative}
+
+  .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .chart-box{background:var(--bg);border-radius:12px;padding:12px;border:1px solid var(--line)}
+  .chart-box h3{font-size:13px;color:var(--dark);text-align:center;margin-bottom:8px}
+  canvas{max-height:250px}
+
+  .analysis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+  .empty{text-align:center;padding:18px;font-size:13px;color:var(--text)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+  .hint{font-size:11.5px;color:var(--text);margin-top:6px;font-style:italic}
+
+  .pomo-wrap{text-align:center;padding:20px}
+  .pomo-display{font-size:56px;font-weight:700;color:var(--main);
+    font-variant-numeric:tabular-nums;letter-spacing:2px}
+  .pomo-modes{display:flex;gap:8px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+  .pomo-mode{padding:6px 14px;border-radius:20px;border:1px solid var(--line);
+    background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--dark)}
+  .pomo-mode.active{background:var(--main);color:#fff;border-color:var(--main)}
+  .pomo-controls{display:flex;gap:10px;justify-content:center;margin-top:10px}
+
+  .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-day-name{text-align:center;font-size:11px;font-weight:700;color:var(--main);padding:6px 0}
+  .cal-day{min-height:70px;background:var(--bg);border:1px solid var(--line);
+    border-radius:8px;padding:6px;font-size:11px;cursor:pointer;transition:.2s;
+    position:relative;overflow:hidden}
+  .cal-day:hover{border-color:var(--main);transform:scale(1.03)}
+  .cal-day.other-month{opacity:.35}
+  .cal-day.today{border:2px solid var(--main);background:rgba(192,132,133,.1)}
+  .cal-day .day-num{font-weight:700;color:var(--dark);font-size:12px}
+  .cal-day .cal-event{background:var(--main);color:#fff;font-size:9px;
+    padding:2px 4px;border-radius:4px;margin-top:3px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cal-nav{background:var(--card);border:1px solid var(--line);color:var(--dark);
+    width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px}
+  .cal-nav:hover{background:var(--main);color:#fff}
+
+  .goal-item{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px;
+    border:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .goal-item.completed{opacity:.6;text-decoration:line-through}
+  .progress-bar{height:8px;background:var(--line);border-radius:4px;
+    overflow:hidden;margin-top:6px;flex:1}
+  .progress-fill{height:100%;background:var(--main);border-radius:4px;transition:.4s}
+
+  .suggest-item{background:linear-gradient(135deg,var(--bg),var(--card));
+    border-right:4px solid var(--main);border-radius:10px;padding:12px;
+    margin-bottom:8px;font-size:13px;animation:slideIn .4s}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+  .suggest-item strong{color:var(--main)}
+
+  .vision-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .vision-item{position:relative;border-radius:12px;overflow:hidden;
+    aspect-ratio:1;background:var(--bg);border:2px solid var(--line);transition:.3s}
+  .vision-item:hover{transform:scale(1.05);border-color:var(--main)}
+  .vision-item img{width:100%;height:100%;object-fit:cover}
+  .vision-item .del-v{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.6);
+    color:#fff;border:none;width:24px;height:24px;border-radius:50%;
+    cursor:pointer;font-size:12px}
+
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+    z-index:1000;align-items:center;justify-content:center;padding:20px;
+    backdrop-filter:blur(3px)}
+  .modal.show{display:flex;animation:fade .2s}
+  .modal-content{background:var(--card);padding:24px;border-radius:16px;
+    max-width:500px;width:100%;max-height:90vh;overflow-y:auto;
+    box-shadow:var(--shadow-lg)}
+  .modal-content h3{color:var(--main);margin-bottom:14px;display:flex;
+    align-items:center;gap:8px}
+  .modal-close{float:left;background:none;border:none;font-size:22px;
+    color:var(--text);cursor:pointer}
+
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(100px);
+    background:var(--main);color:#fff;padding:12px 24px;border-radius:30px;
+    font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.3);
+    transition:.4s;z-index:2000;opacity:0;pointer-events:none;max-width:90%;
+    text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+  @keyframes confetti-fall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  .confetti{position:fixed;width:10px;height:10px;top:-10px;z-index:3000;
+    animation:confetti-fall 3s linear forwards;pointer-events:none}
+
+  .install-banner{position:fixed;bottom:16px;left:16px;right:16px;
+    background:linear-gradient(135deg,var(--main),var(--purple));color:#fff;
+    padding:14px 18px;border-radius:14px;box-shadow:var(--shadow-lg);z-index:9999;
+    display:none;align-items:center;justify-content:space-between;gap:10px;
+    font-size:13px;font-weight:600}
+  .install-banner button{background:#fff;color:var(--main);border:none;
+    padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer}
+
+  .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;
+    background:var(--card);border-top:1px solid var(--line);z-index:100;
+    padding:6px 4px;justify-content:space-around;box-shadow:0 -2px 10px rgba(0,0,0,.08)}
+  .bottom-nav button{background:none;border:none;color:var(--text);font-size:10px;
+    display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;
+    cursor:pointer;font-weight:600;transition:.2s}
+  .bottom-nav button.active{color:var(--main);transform:scale(1.1)}
+  .bottom-nav button span:first-child{font-size:18px}
+
+  .offline-badge{position:fixed;top:8px;left:8px;background:var(--warn);
+    color:#fff;padding:4px 12px;border-radius:12px;font-size:11px;
+    font-weight:700;z-index:9998;display:none}
+  body.offline .offline-badge{display:block}
+
+  .template-card{background:var(--bg);border:2px dashed var(--line);border-radius:12px;
+    padding:14px;margin-bottom:10px;cursor:pointer;transition:.2s}
+  .template-card:hover{border-color:var(--main);background:rgba(192,132,133,.05);
+    transform:translateX(-4px)}
+  .template-card h4{color:var(--main);font-size:13px;margin-bottom:6px}
+  .template-card p{font-size:11px;color:var(--text)}
+
+  .game-box{text-align:center;padding:20px;background:linear-gradient(135deg,
+    var(--bg),rgba(192,132,133,.1));border-radius:16px;border:2px solid var(--main)}
+  .level-badge{font-size:48px;margin:10px 0;animation:bounce 2s infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .xp-bar{height:20px;background:var(--line);border-radius:10px;overflow:hidden;
+    margin:14px 0;position:relative}
+  .xp-fill{height:100%;background:linear-gradient(90deg,var(--main),var(--purple));
+    border-radius:10px;transition:.6s;display:flex;align-items:center;
+    justify-content:center;font-size:10px;font-weight:700;color:#fff}
+  .achievement{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:.2s}
+  .achievement.unlocked{background:linear-gradient(135deg,rgba(192,132,133,.15),var(--card));
+    border-color:var(--main)}
+  .achievement.locked{opacity:.5;filter:grayscale(1)}
+  .achievement .ach-icon{font-size:28px}
+
+  .focus-mode{position:fixed;inset:0;background:var(--bg);z-index:5000;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    padding:20px;text-align:center}
+  .focus-mode.active{display:flex;animation:fade .5s}
+  .focus-mode h2{font-size:28px;color:var(--main);margin-bottom:20px}
+  .focus-mode .timer{font-size:72px;font-weight:700;color:var(--main);
+    font-variant-numeric:tabular-nums;margin:20px 0}
+  .focus-mode button{padding:14px 40px;font-size:16px;margin:5px}
+  .focus-mode .quote{font-size:16px;color:var(--text);max-width:600px;
+    margin:20px auto;font-style:italic;line-height:1.8}
+
+  .insight-box{background:linear-gradient(135deg,var(--card),var(--bg));
+    border:2px solid var(--main);border-radius:16px;padding:18px;margin-bottom:14px}
+  .insight-box h4{color:var(--main);margin-bottom:8px;font-size:14px}
+  .insight-box .big-num{font-size:32px;font-weight:700;color:var(--main)}
+  .heatmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(20px,1fr));
+    gap:3px;margin-top:10px}
+  .heat-cell{aspect-ratio:1;border-radius:3px;background:var(--line);transition:.2s}
+  .heat-cell:hover{transform:scale(1.3);border:1px solid var(--main)}
+
+  .schedule-day{background:var(--bg);border:1px solid var(--line);border-radius:12px;
+    padding:12px;margin-bottom:10px}
+  .schedule-day h4{color:var(--main);font-size:14px;margin-bottom:10px;
+    border-bottom:1px dashed var(--line);padding-bottom:6px}
+  .schedule-item{display:flex;justify-content:space-between;align-items:center;
+    padding:6px 8px;background:var(--card);border-radius:8px;margin-bottom:6px;
+    font-size:12px;border-right:3px solid var(--main)}
+  .schedule-item .time{font-weight:700;color:var(--main);min-width:50px;text-align:left}
+
+  kbd{background:var(--bg);border:1px solid var(--line);border-bottom-width:2px;
+    padding:2px 6px;border-radius:4px;font-size:11px;font-family:monospace;
+    color:var(--dark);font-weight:700}
+
+  @media(max-width:768px){
+    .bottom-nav{display:flex}
+    .tabs{display:none}
+    h1{font-size:18px}
+    .pomo-display{font-size:44px}
+    .cal-day{min-height:55px;font-size:10px}
+    .focus-mode .timer{font-size:52px}
+    .search-bar{position:sticky;top:60px}
+  }
+
+  @media print{
+    .tabs,.header-actions,.bottom-nav,.install-banner,header{display:none!important}
+    .page{display:block!important;page-break-after:always}
+    body{padding:0;background:#fff;color:#000}
+  }
+</style>
+</head>
+<body>
+
+<div class="offline-badge">📴 بدون إنترنت</div>
+
+<div class="focus-mode" id="focusMode">
+  <h2>🎯 وضع التركيز</h2>
+  <div class="timer" id="focusTimer">25:00</div>
+  <div class="quote" id="focusQuote">"التركيز هو مفتاح الإنجاز"</div>
+  <div>
+    <button class="btn btn-primary" onclick="toggleFocusTimer()" id="focusBtn">▶ بدء</button>
+    <button class="btn btn-danger" onclick="exitFocusMode()">✕ خروج</button>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div>
+      <h1>🚀 بلانر أبيه</h1>
+      <p class="subtitle">نظام ذكي متكامل لإدارة المحتوى</p>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="toggleTheme()" title="الوضع">🌙</button>
+      <button class="icon-btn" onclick="toggleFocusMode()" title="وضع التركيز">🎯</button>
+      <button class="icon-btn" onclick="exportData()" title="تصدير">📤</button>
+      <button class="icon-btn" onclick="document.getElementById('importFile').click()" title="استيراد">📥</button>
+      <button class="icon-btn" onclick="exportPDF()" title="PDF">📄</button>
+      <button class="icon-btn" onclick="openModal('helpModal')" title="مساعدة">❓</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </header>
+
+  <div class="search-bar">
+    <input id="globalSearch" placeholder="🔍 ابحثي في كل شيء..." oninput="globalSearch(this.value)" autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card" onclick="showTab('dashboard',null)"><span class="emoji">🔥</span>
+      <div class="info"><span class="val" id="streakVal">0</span><span class="lbl">Streak</span></div></div>
+    <div class="stat-card" onclick="showTab('ideas',null)"><span class="emoji">💡</span>
+      <div class="info"><span class="val" id="ideasCount">0</span><span class="lbl">أفكار</span></div></div>
+    <div class="stat-card" onclick="showTab('analysis',null)"><span class="emoji">📝</span>
+      <div class="info"><span class="val" id="postsCount">0</span><span class="lbl">منشورات</span></div></div>
+    <div class="stat-card" onclick="showTab('goals',null)"><span class="emoji">🎯</span>
+      <div class="info"><span class="val" id="goalsCount">0</span><span class="lbl">أهداف</span></div></div>
+    <div class="stat-card" onclick="showTab('pomodoro',null)"><span class="emoji">⏱️</span>
+      <div class="info"><span class="val" id="focusVal">0</span><span class="lbl">دقيقة</span></div></div>
+    <div class="stat-card" onclick="showTab('game',null)"><span class="emoji">🏆</span>
+      <div class="info"><span class="val" id="levelVal">1</span><span class="lbl">المستوى</span></div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('dashboard',this)">🏠 الرئيسية</button>
+    <button class="tab" onclick="showTab('ideas',this)">💡 الأفكار</button>
+    <button class="tab" onclick="showTab('inspo',this)">✨ الإلهام</button>
+    <button class="tab" onclick="showTab('vision',this)">🖼️ الرؤية</button>
+    <button class="tab" onclick="showTab('goals',this)">🎯 الأهداف</button>
+    <button class="tab" onclick="showTab('calendar',this)">📅 التقويم</button>
+    <button class="tab" onclick="showTab('schedule',this)">⏰ برنامج الأسبوع</button>
+    <button class="tab" onclick="showTab('weekly',this)">🗓️ الأسبوعي</button>
+    <button class="tab" onclick="showTab('daily',this)">📝 اليومي</button>
+    <button class="tab" onclick="showTab('platforms',this)">📱 المنصات</button>
+    <button class="tab" onclick="showTab('templates',this)">📋 القوالب</button>
+    <button class="tab" onclick="showTab('pomodoro',this)">🍅 التركيز</button>
+    <button class="tab" onclick="showTab('game',this)">🏆 التحفيز</button>
+    <button class="tab" onclick="showTab('analysis',this)">📊 التحليل</button>
+    <button class="tab" onclick="showTab('insights',this)">🔮 الاستنتاجات</button>
+    <button class="tab" onclick="showTab('suggestions',this)">🤖 الاقتراحات</button>
+    <button class="tab" onclick="showTab('review',this)">🔍 المراجعة</button>
+  </div>
+
+  <div id="page-dashboard" class="page active">
+    <div class="card">
+      <h2>👋 لوحة القيادة</h2>
+      <div class="kpi-grid" style="margin-top:12px" id="dashKPI"></div>
+    </div>
+    <div class="card">
+      <h2>📌 مهام اليوم</h2>
+      <div id="todayTasks"></div>
+      <div class="form-grid" style="margin-top:10px">
+        <div><input id="taskText" placeholder="أضيفي مهمة..."></div>
+        <div><button class="btn btn-primary" onclick="addQuickTask()" style="width:100%">➕ إضافة</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>💬 اقتراح اليوم</h2>
+      <div id="dailyTip" class="suggest-item"></div>
+    </div>
+    <div class="card">
+      <h2>📊 نشاط آخر 7 أيام</h2>
+      <div class="heatmap" id="heatmapWeek"></div>
+    </div>
+  </div>
+
+  <div id="page-schedule" class="page">
+    <div class="card">
+      <h2>⏰ برنامج الأسبوع (الجدول الزمني)</h2>
+      <p class="hint">نظمي ساعاتكِ لكل يوم من أيام الأسبوع</p>
+      <div class="form-grid" style="margin-top:14px; background:var(--bg); padding:10px; border-radius:10px;">
+        <div>
+          <label>اليوم</label>
+          <select id="schDay">
+            <option>السبت</option><option>الأحد</option><option>الاثنين</option>
+            <option>الثلاثاء</option><option>الأربعاء</option><option>الخميس</option><option>الجمعة</option>
+          </select>
+        </div>
+        <div><label>الوقت</label><input id="schTime" type="time"></div>
+        <div><label>المهمة / النشاط</label><input id="schTask" placeholder="مثال: تصوير ريلز"></div>
+        <div style="display:flex; align-items:flex-end;"><button class="btn btn-primary" onclick="addSchedule()" style="width:100%; margin-top:0">➕ إضافة</button></div>
+      </div>
+      <div id="scheduleList" style="margin-top:20px"></div>
+    </div>
+  </div>
+
+  <div id="page-ideas" class="page">
+    <div class="card">
+      <h2>💡 بنك الأفكار <span class="badge" id="ideasBadge">0</span></h2>
+      <div class="form-grid">
+        <div><label>الفكرة</label><input id="ideaText" placeholder="اكتبي فكرتك..."></div>
+        <div><label>النوع</label>
+          <select id="ideaType"><option>ريلز</option><option>كاروسيل</option><option>ستوري</option><option>فيديو</option><option>صورة</option><option>نص</option></select></div>
+        <div><label>المنصة</label>
+          <select id="ideaPlat"><option>إنستغرام</option><option>تيك توك</option><option>فيسبوك</option><option>يوتيوب</option><option>لينكدإن</option><option>بينترست</option></select></div>
+        <div><label>الأولوية</label>
+          <select id="ideaPriority"><option>🔴 عالية</option><option>🟡 متوسطة</option><option>🟢 منخفضة</option></select></div>
+      </div>
+      <button class="btn btn-primary" onclick="addIdea()">➕ إضافة فكرة</button>
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-sm" style="background:var(--bg);color:var(--dark);border:1px solid var(--line)" onclick="filterIdeas('all')">الكل</button>
+        <button class="btn btn-sm" style="background:var(--bg);color:var(--dark);border:1px solid var(--line)" onclick="filterIdeas('pending')">قيد الانتظار</button>
+        <button class="btn btn-sm" style="background:var(--bg);color:var(--dark);border:1px solid var(--line)" onclick="filterIdeas('done')">منجزة</button>
+        <button class="btn btn-sm btn-purple" onclick="generateAIIdeas()">🤖 أفكار ذكية</button>
+      </div>
+      <div class="table-wrap" style="margin-top:12px">
+        <table><thead><tr><th>الفكرة</th><th>النوع</th><th>المنصة</th><th>الأولوية</th><th>جاهزة</th><th></th></tr></thead>
+        <tbody id="ideasBody"></tbody></table>
+      </div>
+      <div class="empty" id="ideasEmpty">لا أفكار بعد</div>
+    </div>
+  </div>
+
+  <div id="page-inspo" class="page">
+    <div class="card">
+      <h2>✨ الإلهام</h2>
+      <div class="form-grid">
+        <div><label>المنشور</label><input id="inspoText"></div>
+        <div><label>لماذا</label><input id="inspoWhy"></div>
+        <div><label>الفكرة</label><input id="inspoIdea"></div>
+        <div><label>الرابط</label><input id="inspoLink"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addInspo()">➕ إضافة</button>
+      <div class="table-wrap" style="margin-top:12px">
+        <table><thead><tr><th>المنشور</th><th>لماذا</th><th>الفكرة</th><th>رابط</th><th></th></tr></thead>
+        <tbody id="inspoBody"></tbody></table>
+      </div>
+      <div class="empty" id="inspoEmpty">لا عناصر</div>
+    </div>
+  </div>
+
+  <div id="page-vision" class="page">
+    <div class="card">
+      <h2>🖼️ لوحة الرؤية</h2>
+      <div class="form-grid">
+        <div>
+          <label>اختر صورة من الاستوديو 📷</label>
+          <input id="visionFile" type="file" accept="image/*" style="padding:6px">
+        </div>
+        <div><label>التسمية (اختياري)</label><input id="visionLabel"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addVision()">➕ إضافة الصورة</button>
+      <div class="vision-grid" style="margin-top:14px" id="visionGrid"></div>
+      <div class="empty" id="visionEmpty">لا صور</div>
+    </div>
+  </div>
+
+  <div id="page-goals" class="page">
+    <div class="card">
+      <h2>🎯 الأهداف</h2>
+      <div class="form-grid">
+        <div><label>الهدف</label><input id="goalText"></div>
+        <div><label>المستهدف</label><input id="goalTarget" type="number" value="100"></div>
+        <div><label>الحالي</label><input id="goalCurrent" type="number" value="0"></div>
+        <div><label>الموعد</label><input id="goalDeadline" type="date"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addGoal()">➕ إضافة</button>
+      <div style="margin-top:14px" id="goalsList"></div>
+      <div class="empty" id="goalsEmpty">لا أهداف</div>
+    </div>
+  </div>
+
+  <div id="page-calendar" class="page">
+    <div class="card">
+      <h2>📅 التقويم</h2>
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">›</button>
+        <h3 id="calTitle" style="color:var(--main)"></h3>
+        <button class="cal-nav" onclick="changeMonth(1)">‹</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <p class="hint">اضغطي على يوم لإضافة محتوى</p>
+    </div>
+  </div>
+
+  <div id="page-weekly" class="page">
+    <div class="card">
+      <h2>🗓️ الأسبوعي</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>اليوم</th><th>المنصة</th><th>النوع</th><th>الفكرة</th><th>الحالة</th></tr></thead>
+        <tbody id="weeklyBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-daily" class="page">
+    <div class="card">
+      <h2>📝 اليومي</h2>
+      <div class="form-grid">
+        <div><label>التاريخ</label><input id="dailyDate" type="date"></div>
+        <div><label>المنصة</label>
+          <select id="dailyPlat"><option>إنستغرام</option><option>تيك توك</option><option>فيسبوك</option><option>يوتيوب</option><option>لينكدإن</option><option>بينترست</option></select></div>
+        <div><label>الوقت</label><input id="dailyTime" type="time"></div>
+      </div>
+      <div style="margin-top:10px"><label>🎯 الهدف</label><textarea id="dailyGoal"></textarea></div>
+      <div style="margin-top:10px"><label>📌 المحتوى</label><textarea id="dailyContent"></textarea></div>
+      <div style="margin-top:10px"><label>✍️ الخطوات</label><textarea id="dailySteps"></textarea></div>
+      <div style="margin-top:10px"><label>💭 ملاحظات</label><textarea id="dailyNotes"></textarea></div>
+    </div>
+  </div>
+
+  <div id="page-platforms" class="page">
+    <div class="card">
+      <h2>📱 المنصات</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>المنصة</th><th>النوع</th><th>الوقت</th><th>التكرار</th><th>هاشتاغات</th></tr></thead>
+        <tbody id="platformsBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-templates" class="page">
+    <div class="card">
+      <h2>📋 قوالب جاهزة</h2>
+      <p class="hint">اختاري قالباً لملء الحقول تلقائياً</p>
+      <div id="templatesList" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div id="page-pomodoro" class="page">
+    <div class="card">
+      <h2>🍅 التركيز</h2>
+      <div class="pomo-wrap">
+        <div class="pomo-modes">
+          <button class="pomo-mode active" onclick="setPomoMode('focus',this)">تركيز 25د</button>
+          <button class="pomo-mode" onclick="setPomoMode('short',this)">راحة 5د</button>
+          <button class="pomo-mode" onclick="setPomoMode('long',this)">طويلة 15د</button>
+        </div>
+        <div class="pomo-display" id="pomoDisplay">25:00</div>
+        <div class="pomo-controls">
+          <button class="btn btn-primary" onclick="togglePomo()" id="pomoBtn">▶ بدء</button>
+          <button class="btn btn-danger" onclick="resetPomo()">🔄 إعادة</button>
+        </div>
+        <p class="hint" style="margin-top:14px">
+          🍅 جلسات اليوم: <b id="pomoSessions">0</b> |
+          إجمالي دقائق: <b id="pomoMinutes">0</b>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-game" class="page">
+    <div class="card">
+      <h2>🏆 نظام التحفيز</h2>
+      <div class="game-box">
+        <div class="level-badge" id="levelBadge">⭐</div>
+        <h3 id="levelTitle" style="color:var(--main)">مبتدئة</h3>
+        <p class="hint">المستوى <b id="levelNum">1</b> — <span id="xpTotal">0</span> XP</p>
+        <div class="xp-bar">
+          <div class="xp-fill" id="xpFill" style="width:0%">0%</div>
+        </div>
+        <p class="hint">تحتاجين <b id="xpNext">100</b> XP للمستوى القادم</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>🏅 الإنجازات <span class="badge" id="achBadge">0/12</span></h2>
+      <div id="achievementsList"></div>
+    </div>
+  </div>
+
+  <div id="page-analysis" class="page">
+    <div class="card">
+      <h2>➕ إضافة منشور</h2>
+      <div class="form-grid">
+        <div><label>الاسم</label><input id="inTitle"></div>
+        <div><label>المنصة</label>
+          <select id="inPlatform"><option>إنستغرام</option><option>تيك توك</option><option>فيسبوك</option><option>يوتيوب</option><option>لينكدإن</option><option>بينترست</option></select></div>
+        <div><label>النوع</label>
+          <select id="inType"><option>ريلز</option><option>كاروسيل</option><option>ستوري</option><option>فيديو</option><option>صورة</option><option>نص</option></select></div>
+        <div><label>الوصول</label><input id="inReach" type="number" min="0" value="0"></div>
+        <div><label>التفاعل</label><input id="inEngage" type="number" min="0" value="0"></div>
+        <div><label>الحفظ</label><input id="inSave" type="number" min="0" value="0"></div>
+        <div><label>المشاركة</label><input id="inShare" type="number" min="0" value="0"></div>
+        <div><label>التعليقات</label><input id="inComment" type="number" min="0" value="0"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addPost()">➕ إضافة</button>
+    </div>
+
+    <div class="card">
+      <h2>📋 المنشورات</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>الاسم</th><th>المنصة</th><th>النوع</th><th>وصول</th><th>تفاعل</th><th>حفظ</th><th>مشاركة</th><th>تعليقات</th><th>معدل</th><th>تقييم</th><th></th></tr></thead>
+        <tbody id="postsBody"></tbody></table>
+      </div>
+      <div class="empty" id="postsEmpty">لا منشورات</div>
+      <div class="actions"><button class="btn btn-danger" onclick="clearPosts()">🗑️ مسح</button></div>
+    </div>
+
+    <div class="card"><h2>🎯 KPIs</h2><div class="kpi-grid" id="kpiGrid"></div></div>
+
+    <div class="card">
+      <h2>📈 الرسوم</h2>
+      <div class="charts">
+        <div class="chart-box"><h3>الوصول حسب المنصة</h3><canvas id="chartPlatform"></canvas></div>
+        <div class="chart-box"><h3>التفاعل حسب النوع</h3><canvas id="chartType"></canvas></div>
+        <div class="chart-box"><h3>تطور الوصول</h3><canvas id="chartTrend"></canvas></div>
+        <div class="chart-box"><h3>مقارنة المنصات (تفاعل)</h3><canvas id="chartRadar"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>✍️ تحليل</h2>
+      <div class="analysis-grid">
+        <div><label>✅ نجح</label><textarea id="aSuccess"></textarea></div>
+        <div><label>❌ فشل</label><textarea id="aFail"></textarea></div>
+        <div><label>🔁 نكرر</label><textarea id="aRepeat"></textarea></div>
+        <div><label>🚫 نتوقف</label><textarea id="aStop"></textarea></div>
+        <div><label>🆕 نجرب</label><textarea id="aTry"></textarea></div>
+        <div><label>🎯 هدف</label><textarea id="aGoal"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-insights" class="page">
+    <div class="card">
+      <h2>🔮 تحليلات متقدمة</h2>
+      <div id="insightsList" style="margin-top:14px"></div>
+    </div>
+    <div class="card">
+      <h2>📊 إحصائيات معمّقة</h2>
+      <div class="kpi-grid" id="deepStats"></div>
+    </div>
+  </div>
+
+  <div id="page-suggestions" class="page">
+    <div class="card">
+      <h2>🤖 اقتراحات ذكية</h2>
+      <p class="hint">مبنية على تحليل بياناتك</p>
+      <div id="suggestionsList" style="margin-top:14px"></div>
+    </div>
+    <div class="card">
+      <h2>📚 مكتبة النصائح</h2>
+      <div id="tipsList"></div>
+    </div>
+  </div>
+
+  <div id="page-review" class="page">
+    <div class="card">
+      <h2>🔍 المراجعة الأسبوعية</h2>
+      <div style="margin-bottom:10px"><label>✅ نجح</label><textarea id="rSuccess"></textarea></div>
+      <div style="margin-bottom:10px"><label>❌ لم ينجح</label><textarea id="rFail"></textarea></div>
+      <div style="margin-bottom:10px"><label>🏆 أفضل منشور</label><textarea id="rBest"></textarea></div>
+      <div style="margin-bottom:10px"><label>💡 أفكار قادمة</label><textarea id="rIdeas"></textarea></div>
+      <div style="margin-bottom:10px"><label>🎯 هدف قادم</label><textarea id="rGoal"></textarea></div>
+      <div class="actions">
+        <button class="btn btn-info" onclick="exportPDF()">📄 تصدير PDF</button>
+        <button class="btn btn-danger" onclick="clearAll()">🗑️ مسح الكل</button>
+      </div>
+      <p class="hint">البيانات محفوظة في متصفحك</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-nav">
+  <button class="active" onclick="showTab('dashboard',this)"><span>🏠</span><span>الرئيسية</span></button>
+  <button onclick="showTab('ideas',this)"><span>💡</span><span>أفكار</span></button>
+  <button onclick="showTab('schedule',this)"><span>⏰</span><span>البرنامج</span></button>
+  <button onclick="showTab('analysis',this)"><span>📊</span><span>تحليل</span></button>
+  <button onclick="openModal('helpModal')"><span>❓</span><span>مساعدة</span></button>
+</div>
+
+<div class="install-banner" id="installBanner">
+  <span>📱 ثبّتي بلانر أبيه</span>
+  <div style="display:flex;gap:6px">
+    <button onclick="installPWA()">تثبيت</button>
+    <button onclick="dismissInstall()" style="background:transparent;border:1px solid #fff;color:#fff">✕</button>
+  </div>
+</div>
+
+<div class="modal" id="helpModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('helpModal')">×</button>
+    <h3>❓ دليل أبيه</h3>
+    <h4 style="color:var(--main);margin:14px 0 8px;font-size:14px">⌨️ اختصارات</h4>
+    <p style="font-size:12px;line-height:2">
+      <kbd>Ctrl</kbd>+<kbd>K</kbd> بحث<br>
+      <kbd>Ctrl</kbd>+<kbd>D</kbd> الرئيسية<br>
+      <kbd>Ctrl</kbd>+<kbd>I</kbd> الأفكار<br>
+      <kbd>Ctrl</kbd>+<kbd>A</kbd> التحليل<br>
+      <kbd>Ctrl</kbd>+<kbd>P</kbd> بومودورو<br>
+      <kbd>Ctrl</kbd>+<kbd>F</kbd> وضع التركيز<br>
+      <kbd>Esc</kbd> إغلاق
+    </p>
+    <h4 style="color:var(--main);margin:14px 0 8px;font-size:14px">🌟 الميزات</h4>
+    <ul style="padding-right:20px;font-size:12px;line-height:2">
+      <li>⏰ برنامج أسبوعي كامل</li>
+      <li>🖼️ رفع صور من الاستوديو</li>
+      <li>🔍 بحث شامل</li>
+      <li>🎯 وضع تركيز</li>
+      <li>🏆 نظام XP وإنجازات</li>
+      <li>🔮 تحليلات ذكية</li>
+      <li>🤖 مولّد أفكار</li>
+      <li>📋 قوالب جاهزة</li>
+      <li>📄 تصدير PDF</li>
+    </ul>
+  </div>
+</div>
+
+<div class="modal" id="aiModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('aiModal')">×</button>
+    <h3>🤖 مولّد الأفكار الذكي</h3>
+    <p class="hint">أفكار مولدة خصيصاً لبياناتك</p>
+    <div id="aiIdeasList" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const store = {
+  get(k, def){ try{ return JSON.parse(localStorage.getItem(k)) ?? def; }catch{ return def; } },
+  set(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+};
+
+function toast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type==='error' ? 'var(--danger)' :
+                       type==='warn' ? 'var(--warn)' : 'var(--main)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+function confetti(){
+  for(let i=0;i<50;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100+'%';
+    c.style.background = ['#C08485','#E8C4C5','#7BAE7F','#E0A458','#9B7EB5','#5FA8A0'][i%6];
+    c.style.animationDelay = Math.random()*0.5+'s';
+    c.style.borderRadius = Math.random()>0.5 ? '50%' : '0';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 3500);
+  }
+}
+
+const LEVELS = [
+  {name:'مبتدئة', icon:'🌱', min:0},
+  {name:'متدربة', icon:'🌿', min:100},
+  {name:'نشيطة', icon:'⭐', min:300},
+  {name:'محترفة', icon:'🌟', min:600},
+  {name:'خبيرة', icon:'💫', min:1000},
+  {name:'أسطورة', icon:'👑', min:2000},
+  {name:'أسطورة ULTRA', icon:'🏆', min:5000}
+];
+
+function getXP(){ return store.get('pl_xp', 0); }
+function addXP(amount, reason=''){
+  const cur = getXP();
+  const newXP = cur + amount;
+  store.set('pl_xp', newXP);
+  const oldLevel = getLevel(cur);
+  const newLevel = getLevel(newXP);
+  if(newLevel.level > oldLevel.level){
+    setTimeout(()=>{
+      confetti();
+      toast(`🎉 ترقّيتِ للمستوى ${newLevel.level}: ${newLevel.name}!`, 'success');
+    }, 500);
+  }
+  if(reason) toast(`+${amount} XP — ${reason}`);
+  updateXPDisplay();
+  checkAchievements();
+  return newXP;
+}
+function getLevel(xp){
+  for(let i=LEVELS.length-1;i>=0;i--){
+    if(xp >= LEVELS[i].min) return {...LEVELS[i], level:i+1, nextXP: LEVELS[i+1]?.min || LEVELS[i].min+1000};
+  }
+  return {...LEVELS[0], level:1, nextXP:100};
+}
+function updateXPDisplay(){
+  const xp = getXP();
+  const lvl = getLevel(xp);
+  const prevXP = LEVELS[lvl.level-1]?.min || 0;
+  const rangeXP = lvl.nextXP - prevXP;
+  const progress = Math.min(100, Math.round((xp - prevXP) / rangeXP * 100));
+  const lb = document.getElementById('levelBadge');
+  if(lb){
+    lb.textContent = lvl.icon;
+    document.getElementById('levelTitle').textContent = lvl.name;
+    document.getElementById('levelNum').textContent = lvl.level;
+    document.getElementById('xpTotal').textContent = xp;
+    document.getElementById('xpNext').textContent = lvl.nextXP;
+    document.getElementById('xpFill').style.width = progress+'%';
+    document.getElementById('xpFill').textContent = progress+'%';
+    document.getElementById('levelVal').textContent = lvl.level;
+  }
+}
+
+const ACHIEVEMENTS = [
+  {id:'first_idea', icon:'💡', title:'أول فكرة', desc:'أضيفي أول فكرة', check:()=> store.get('pl_ideas',[]).length >= 1},
+  {id:'five_ideas', icon:'🌱', title:'مفكرة', desc:'5 أفكار', check:()=> store.get('pl_ideas',[]).length >= 5},
+  {id:'first_post', icon:'📝', title:'أول منشور', desc:'أضيفي أول منشور', check:()=> store.get('pl_posts',[]).length >= 1},
+  {id:'ten_posts', icon:'📚', title:'ناشرة', desc:'10 منشورات', check:()=> store.get('pl_posts',[]).length >= 10},
+  {id:'first_goal', icon:'🎯', title:'هادفة', desc:'أضيفي أول هدف', check:()=> store.get('pl_goals',[]).length >= 1},
+  {id:'goal_done', icon:'🏆', title:'منجزة', desc:'أكملي هدفاً', check:()=> store.get('pl_goals',[]).some(g=>g.current>=g.target)},
+  {id:'pomo_5', icon:'🍅', title:'مركّزة', desc:'5 جلسات بومودورو', check:()=> store.get('pl_pomo_sessions',0) >= 5},
+  {id:'pomo_25', icon:'⏱️', title:'ملكة التركيز', desc:'25 جلسة', check:()=> store.get('pl_pomo_sessions',0) >= 25},
+  {id:'streak_3', icon:'🔥', title:'مستمرة', desc:'3 أيام متتالية', check:()=> calcStreak() >= 3},
+  {id:'streak_7', icon:'💥', title:'أسبوع كامل', desc:'7 أيام', check:()=> calcStreak() >= 7},
+  {id:'vision_5', icon:'🖼️', title:'رؤيوية', desc:'5 صور رؤية', check:()=> store.get('pl_visions',[]).length >= 5},
+  {id:'inspo_10', icon:'✨', title:'ملهمة', desc:'10 إلهام', check:()=> store.get('pl_inspos',[]).length >= 10}
+];
+
+function checkAchievements(){
+  const unlocked = store.get('pl_achievements', []);
+  ACHIEVEMENTS.forEach(a => {
+    if(!unlocked.includes(a.id) && a.check()){
+      unlocked.push(a.id);
+      store.set('pl_achievements', unlocked);
+      setTimeout(()=>{
+        confetti();
+        toast(`🏅 إنجاز جديد: ${a.title}!`, 'success');
+        addXP(50, `إنجاز ${a.title}`);
+      }, 100);
+    }
+  });
+  renderAchievements();
+}
+
+function renderAchievements(){
+  const list = document.getElementById('achievementsList');
+  if(!list) return;
+  const unlocked = store.get('pl_achievements', []);
+  list.innerHTML = ACHIEVEMENTS.map(a => {
+    const isUnlocked = unlocked.includes(a.id);
+    return `<div class="achievement ${isUnlocked?'unlocked':'locked'}">
+      <span class="ach-icon">${a.icon}</span>
+      <div style="flex:1">
+        <strong>${a.title}</strong>
+        <div style="font-size:11px;opacity:.8">${a.desc}</div>
+      </div>
+      <span style="font-size:20px">${isUnlocked?'✅':'🔒'}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('achBadge').textContent = `${unlocked.length}/${ACHIEVEMENTS.length}`;
+}
+
+function globalSearch(query){
+  const results = document.getElementById('searchResults');
+  if(!query || query.length < 2){ results.classList.remove('show'); return; }
+  const q = query.toLowerCase();
+  const matches = [];
+
+  store.get('pl_ideas',[]).forEach(i => {
+    if(i.text?.toLowerCase().includes(q)) matches.push({cat:'💡 فكرة', text:i.text});
+  });
+  store.get('pl_posts',[]).forEach(p => {
+    if(p.title?.toLowerCase().includes(q)) matches.push({cat:'📝 منشور', text:p.title});
+  });
+  store.get('pl_inspos',[]).forEach(x => {
+    if(x.text?.toLowerCase().includes(q)) matches.push({cat:'✨ إلهام', text:x.text});
+  });
+  store.get('pl_goals',[]).forEach(g => {
+    if(g.text?.toLowerCase().includes(q)) matches.push({cat:'🎯 هدف', text:g.text});
+  });
+  store.get('pl_tasks',[]).forEach(t => {
+    if(t.text?.toLowerCase().includes(q)) matches.push({cat:'✅ مهمة', text:t.text});
+  });
+
+  if(!matches.length){
+    results.innerHTML = '<div class="search-item">لا نتائج</div>';
+  } else {
+    results.innerHTML = matches.slice(0, 10).map(m =>
+      `<div class="search-item"><div class="cat">${m.cat}</div>${m.text}</div>`
+    ).join('');
+  }
+  results.classList.add('show');
+}
+
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.search-bar')){
+    document.getElementById('searchResults')?.classList.remove('show');
+  }
+});
+
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  store.set('pl_theme', next);
+  document.querySelectorAll('.icon-btn')[0].textContent = next==='dark' ? '☀️' : '🌙';
+  renderCharts();
+}
+(function initTheme(){
+  const t = store.get('pl_theme','light');
+  if(t==='dark'){
+    document.documentElement.setAttribute('data-theme','dark');
+    document.querySelectorAll('.icon-btn')[0].textContent = '☀️';
+  }
+})();
+
+function showTab(id, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');
+  if(btn && btn.classList.contains('tab')) btn.classList.add('active');
+  document.querySelectorAll('.bottom-nav button').forEach(b=>{
+    if(b.getAttribute('onclick')?.includes("'"+id+"'")) b.classList.add('active');
+  });
+  if(id==='calendar') renderCalendar();
+  if(id==='suggestions') renderSuggestions();
+  if(id==='dashboard') renderDashboard();
+  if(id==='game') { updateXPDisplay(); renderAchievements(); }
+  if(id==='insights') renderInsights();
+  if(id==='templates') renderTemplates();
+  if(id==='schedule') renderSchedule();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderDashboard(){
+  const postsCount = store.get('pl_posts',[]).length;
+  const ideasCount = store.get('pl_ideas',[]).length;
+  const goalsActive = store.get('pl_goals',[]).filter(g=>g.current<g.target).length;
+  const insposCount = store.get('pl_inspos',[]).length;
+  const streak = calcStreak();
+  const totalReach = store.get('pl_posts',[]).reduce((s,p)=>s+p.reach,0);
+  const totalEng = store.get('pl_posts',[]).reduce((s,p)=>s+(p.engage+p.save+p.share+p.comment),0);
+  document.getElementById('dashKPI').innerHTML = [
+    {val: postsCount, lbl:'منشورات'},
+    {val: ideasCount, lbl:'أفكار'},
+    {val: goalsActive, lbl:'أهداف نشطة'},
+    {val: insposCount, lbl:'إلهام'},
+    {val: streak+'🔥', lbl:'أيام متتالية'},
+    {val: totalReach.toLocaleString(), lbl:'الوصول'},
+    {val: totalEng.toLocaleString(), lbl:'التفاعل'},
+    {val: getXP(), lbl:'XP'}
+  ].map(k=>`<div class="kpi"><div class="val">${k.val}</div><div class="lbl">${k.lbl}</div></div>`).join('');
+  renderTodayTasks();
+  renderDailyTip();
+  renderHeatmap();
+  updateStatsBar();
+}
+
+function renderHeatmap(){
+  const box = document.getElementById('heatmapWeek');
+  if(!box) return;
+  const days = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  const posts = store.get('pl_posts',[]);
+  const tasks = store.get('pl_tasks',[]);
+  box.innerHTML = days.map(d => {
+    const count = posts.filter(p=>p.date===d).length + tasks.filter(t=>t.date===d && t.done).length;
+    const intensity = Math.min(count/5, 1);
+    const color = count === 0 ? 'var(--line)' : `rgba(192,132,133,${0.2 + intensity*0.8})`;
+    return `<div class="heat-cell" style="background:${color}" title="${d}: ${count} نشاط"></div>`;
+  }).join('');
+}
+
+let tasks = store.get('pl_tasks', []);
+function renderTodayTasks(){
+  const box = document.getElementById('todayTasks');
+  const today = new Date().toISOString().split('T')[0];
+  const todayTasks = tasks.filter(t=>t.date===today);
+  if(!todayTasks.length){
+    box.innerHTML = '<div class="empty">لا مهام اليوم — أضيفي 👇</div>';
+    return;
+  }
+  box.innerHTML = todayTasks.map(t=>`
+    <div class="goal-item ${t.done?'completed':''}">
+      <input type="checkbox" class="chk" ${t.done?'checked':''} onchange="toggleTask('${t.id}')">
+      <span style="flex:1">${t.text}</span>
+      <button class="del" onclick="delTask('${t.id}')">✖</button>
+    </div>`).join('');
+}
+function addQuickTask(){
+  const text = document.getElementById('taskText').value.trim();
+  if(!text) return;
+  const today = new Date().toISOString().split('T')[0];
+  tasks.push({ id: Date.now().toString(), text, date: today, done: false });
+  store.set('pl_tasks', tasks);
+  document.getElementById('taskText').value = '';
+  renderTodayTasks();
+  addXP(5, 'مهمة جديدة');
+}
+function toggleTask(id){
+  const t = tasks.find(x=>x.id===id);
+  if(t){
+    t.done = !t.done;
+    store.set('pl_tasks', tasks);
+    renderTodayTasks();
+    renderHeatmap();
+    if(t.done){ toast('✅ أحسنتِ!'); addXP(10, 'مهمة مكتملة'); }
+  }
+}
+function delTask(id){
+  tasks = tasks.filter(t=>t.id!==id);
+  store.set('pl_tasks', tasks);
+  renderTodayTasks();
+}
+
+const dailyTips = [
+  'ابدئي بأهم مهمة قبل السوشيال ميديا.',
+  'خصصي 15 دقيقة لكتابة 5 أفكار.',
+  'جربي نوع محتوى لم تجربيه اليوم.',
+  'راجعي تحليلات الأسبوع قبل التخطيط.',
+  'تفاعلي مع 10 حسابات في مجالك.',
+  'أعيدي نشر أفضل منشور بصيغة جديدة.',
+  'اسألي متابعيكِ سؤالاً في الستوري.',
+  'خصصي وقتاً لتعلم مهارة جديدة.',
+  'اكتبي 3 عناوين جذابة لمنشورك.',
+  'حللي منشور منافس ناجح.',
+  'استخدمي صوتك الحقيقي في الفيديو — يبني ثقة أسرع.',
+  'لا تنشري بدون دعوة واضحة لاتخاذ إجراء.'
+];
+function renderDailyTip(){
+  const idx = new Date().getDate() % dailyTips.length;
+  document.getElementById('dailyTip').innerHTML = `<strong>💡 نصيحة اليوم:</strong> ${dailyTips[idx]}`;
+}
+
+function calcStreak(){
+  const posts = store.get('pl_posts',[]);
+  const days = [...new Set(posts.map(p=>p.date).filter(Boolean))].sort().reverse();
+  if(!days.length) return 0;
+  let streak = 1;
+  let cur = new Date(days[0]);
+  for(let i=1;i<days.length;i++){
+    const d = new Date(days[i]);
+    const diff = (cur - d) / (1000*60*60*24);
+    if(diff === 1){ streak++; cur = d; }
+    else break;
+  }
+  return streak;
+}
+
+function updateStatsBar(){
+  document.getElementById('ideasCount').textContent = store.get('pl_ideas',[]).length;
+  document.getElementById('postsCount').textContent = store.get('pl_posts',[]).length;
+  document.getElementById('goalsCount').textContent = store.get('pl_goals',[]).filter(g=>g.current<g.target).length;
+  document.getElementById('streakVal').textContent = calcStreak();
+  document.getElementById('focusVal').textContent = store.get('pl_pomo_minutes',0);
+  document.getElementById('levelVal').textContent = getLevel(getXP()).level;
+}
+
+let schedule = store.get('pl_schedule', {});
+const weekDays = ['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
+
+function addSchedule(){
+  const day = document.getElementById('schDay').value;
+  const time = document.getElementById('schTime').value;
+  const task = document.getElementById('schTask').value.trim();
+  
+  if(!time || !task){ toast('⚠️ اكتبي الوقت والمهمة', 'warn'); return; }
+  
+  if(!schedule[day]) schedule[day] = [];
+  schedule[day].push({ id: Date.now(), time, task });
+  schedule[day].sort((a,b) => a.time.localeCompare(b.time));
+  
+  store.set('pl_schedule', schedule);
+  document.getElementById('schTime').value = '';
+  document.getElementById('schTask').value = '';
+  renderSchedule();
+  addXP(3, 'برنامج جديد');
+}
+
+function renderSchedule(){
+  const box = document.getElementById('scheduleList');
+  if(!box) return;
+  
+  let html = '';
+  let hasTasks = false;
+  
+  weekDays.forEach(day => {
+    if(schedule[day] && schedule[day].length > 0){
+      hasTasks = true;
+      html += `<div class="schedule-day"><h4>${day}</h4>`;
+      schedule[day].forEach(item => {
+        html += `<div class="schedule-item">
+          <span class="time">${item.time}</span>
+          <span style="flex:1;text-align:right;padding-right:10px">${item.task}</span>
+          <button class="del" onclick="delSchedule('${day}', ${item.id})">✖</button>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+  });
+  
+  if(!hasTasks){
+    box.innerHTML = '<div class="empty">لا يوجد برنامج بعد — أضيفي مهامكِ لكل يوم ⏰</div>';
+  } else {
+    box.innerHTML = html;
+  }
+}
+
+function delSchedule(day, id){
+  schedule[day] = schedule[day].filter(x => x.id !== id);
+  if(schedule[day].length === 0) delete schedule[day];
+  store.set('pl_schedule', schedule);
+  renderSchedule();
+}
+
+let ideas = store.get('pl_ideas', []);
+let ideaFilter = 'all';
+function renderIdeas(){
+  const tb = document.getElementById('ideasBody'); tb.innerHTML='';
+  const filtered = ideas.filter(i=>{
+    if(ideaFilter==='pending') return !i.done;
+    if(ideaFilter==='done') return i.done;
+    return true;
+  });
+  document.getElementById('ideasEmpty').style.display = filtered.length? 'none':'block';
+  document.getElementById('ideasBadge').textContent = ideas.length;
+  filtered.forEach((i)=>{
+    const realIdx = ideas.indexOf(i);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i.text}</td><td>${i.type}</td><td>${i.plat}</td>
+      <td>${i.priority||'🟡'}</td>
+      <td><input type="checkbox" class="chk" ${i.done?'checked':''} onchange="toggleIdea(${realIdx})"></td>
+      <td><button class="del" onclick="delIdea(${realIdx})">✖</button></td>`;
+    tb.appendChild(tr);
+  });
+  updateStatsBar();
+  checkAchievements();
+}
+function filterIdeas(f){ ideaFilter = f; renderIdeas(); }
+function addIdea(){
+  const text = document.getElementById('ideaText').value.trim();
+  if(!text){ toast('⚠️ اكتبي الفكرة', 'warn'); return; }
+  ideas.push({ text, type: document.getElementById('ideaType').value,
+    plat: document.getElementById('ideaPlat').value,
+    priority: document.getElementById('ideaPriority').value.split(' ')[0],
+    done:false, date: new Date().toISOString().split('T')[0] });
+  store.set('pl_ideas', ideas);
+  document.getElementById('ideaText').value='';
+  renderIdeas();
+  addXP(5, 'فكرة جديدة');
+}
+function toggleIdea(i){
+  ideas[i].done = !ideas[i].done;
+  store.set('pl_ideas', ideas);
+  renderIdeas();
+  if(ideas[i].done){ confetti(); addXP(10, 'فكرة منجزة'); }
+}
+function delIdea(i){ ideas.splice(i,1); store.set('pl_ideas', ideas); renderIdeas(); }
+
+const ideaTemplates = {
+  'ريلز': [
+    '3 أخطاء يرتكبها المبتدئون في {field}',
+    'كيف حققت {result} في {time}',
+    'روتيني اليومي كـ {role}',
+    'أدواتي المفضلة في {field}',
+    'ما كنت أتمنى معرفته قبل بدء {field}',
+    'خلف الكواليس: يوم في حياتي',
+    'قبل/بعد: تحولي في {field}',
+    'أسرار {field} التي لا يخبرك بها أحد'
+  ],
+  'كاروسيل': [
+    '7 نصائح لـ {goal}',
+    'دليل المبتدئين في {field}',
+    'خطواتي لتحقيق {result}',
+    'أفضل 5 موارد لـ {field}',
+    'أخطاء شائعة في {field} وكيف تتجنبها',
+    'مقارنة بين X و Y في {field}'
+  ],
+  'فيديو': [
+    'شرح مفصل لـ {concept}',
+    'تجربتي الكاملة مع {tool}',
+    'مراجعة {product}',
+    'كيف تبدأ في {field} من الصفر'
+  ],
+  'نص': [
+    'سؤال يثير التفكير: ماذا لو {scenario}؟',
+    'قصة نجاح ملهمة في {field}',
+    'رأيي الصريح في {topic}',
+    '5 دروس تعلمتها من {experience}'
+  ]
+};
+const fillWords = {
+  field: ['التسويق الرقمي','التصميم','التصوير','اللياقة','الطبخ','التطوير الذاتي','ريادة الأعمال','التعليم'],
+  result: ['1000 متابع','أول 100 عميل','دخل إضافي','نمو 50%'],
+  time: ['30 يوماً','3 أشهر','سنة واحدة'],
+  role: ['صانعة محتوى','مصممة','مدربة','رائدة أعمال'],
+  goal: ['زيادة المتابعين','تحسين التفاعل','بناء علامة تجارية'],
+  concept: ['الـ SEO','التسويق بالمحتوى','الهوية البصرية'],
+  tool: ['Canva','Notion','ChatGPT'],
+  product: ['كاميرا الهاتف','تطبيق التصميم'],
+  scenario: ['بدأت من الصفر اليوم','لديك 24 ساعة فقط'],
+  topic: ['النجاح السريع','المقارنة الاجتماعية'],
+  experience: ['فشل مشروعي الأول','عام من النشر اليومي']
+};
+function generateAIIdeas(){
+  const list = [];
+  const types = Object.keys(ideaTemplates);
+  for(let i=0;i<6;i++){
+    const type = types[Math.floor(Math.random()*types.length)];
+    const template = ideaTemplates[type][Math.floor(Math.random()*ideaTemplates[type].length)];
+    const idea = template.replace(/\{(\w+)\}/g, (m, key) => {
+      const arr = fillWords[key] || [key];
+      return arr[Math.floor(Math.random()*arr.length)];
+    });
+    list.push({type, idea});
+  }
+  const box = document.getElementById('aiIdeasList');
+  box.innerHTML = list.map((x,i) => `
+    <div class="suggest-item">
+      <strong>${x.type}</strong><br>
+      ${x.idea}<br>
+      <button class="btn btn-sm btn-primary" style="margin-top:8px" onclick="saveAIIdea('${x.idea.replace(/'/g,"\\'")}','${x.type}')">➕ حفظ</button>
+    </div>
+  `).join('');
+  openModal('aiModal');
+}
+function saveAIIdea(text, type){
+  ideas.push({ text, type, plat:'إنستغرام', priority:'🟡', done:false,
+    date: new Date().toISOString().split('T')[0] });
+  store.set('pl_ideas', ideas);
+  renderIdeas();
+  toast('✅ تم الحفظ');
+  addXP(5, 'فكرة ذكية');
+}
+
+let inspos = store.get('pl_inspos', []);
+function renderInspo(){
+  const tb = document.getElementById('inspoBody'); tb.innerHTML='';
+  document.getElementById('inspoEmpty').style.display = inspos.length? 'none':'block';
+  inspos.forEach((x,idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${x.text}</td><td>${x.why}</td><td>${x.idea}</td>
+      <td>${x.link?`<a href="${x.link}" target="_blank" style="color:var(--main)">🔗</a>`:'—'}</td>
+      <td><button class="del" onclick="delInspo(${idx})">✖</button></td>`;
+    tb.appendChild(tr);
+  });
+  checkAchievements();
+}
+function addInspo(){
+  const text = document.getElementById('inspoText').value.trim();
+  if(!text){ toast('⚠️ اكتبي الاسم', 'warn'); return; }
+  inspos.push({ text, why: document.getElementById('inspoWhy').value,
+    idea: document.getElementById('inspoIdea').value,
+    link: document.getElementById('inspoLink').value });
+  store.set('pl_inspos', inspos);
+  ['inspoText','inspoWhy','inspoIdea','inspoLink'].forEach(id=>document.getElementById(id).value='');
+  renderInspo();
+  addXP(3, 'إلهام محفوظ');
+}
+function delInspo(i){ inspos.splice(i,1); store.set('pl_inspos', inspos); renderInspo(); }
+
+let visions = store.get('pl_visions', []);
+function renderVision(){
+  const grid = document.getElementById('visionGrid'); grid.innerHTML='';
+  document.getElementById('visionEmpty').style.display = visions.length? 'none':'block';
+  visions.forEach((v,idx)=>{
+    const div = document.createElement('div');
+    div.className = 'vision-item';
+    div.innerHTML = `<img src="${v.url}" alt="${v.label}" onerror="this.src='https://via.placeholder.com/200?text=?'">
+      <button class="del-v" onclick="delVision(${idx})">✖</button>`;
+    grid.appendChild(div);
+  });
+  checkAchievements();
+}
+
+// دالة إضافة صورة من الاستوديو مع ضغطها
+function addVision(){
+  const fileInput = document.getElementById('visionFile');
+  const label = document.getElementById('visionLabel').value;
+
+  if (!fileInput.files || fileInput.files.length === 0) {
+    toast('⚠️ اختاري صورة أولاً من الاستوديو', 'warn');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // ضغط الصورة باستخدام Canvas
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 600; // أقصى عرض
+      const MAX_HEIGHT = 600; // أقصى ارتفاع
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // تحويل الصورة إلى Base64 مضغوط (جودة 70%)
+      const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+      visions.push({ url: compressedBase64, label: label });
+      store.set('pl_visions', visions);
+      
+      document.getElementById('visionFile').value = '';
+      document.getElementById('visionLabel').value = '';
+      renderVision();
+      addXP(3, 'صورة رؤية');
+      toast('✅ تمت إضافة الصورة بنجاح');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function delVision(i){ visions.splice(i,1); store.set('pl_visions', visions); renderVision(); }
+
+let goals = store.get('pl_goals', []);
+function renderGoals(){
+  const box = document.getElementById('goalsList'); box.innerHTML='';
+  document.getElementById('goalsEmpty').style.display = goals.length? 'none':'block';
+  goals.forEach((g,idx)=>{
+    const pct = Math.min(100, Math.round(g.current/g.target*100));
+    const done = g.current >= g.target;
+    box.innerHTML += `
+      <div class="goal-item ${done?'completed':''}">
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>${g.text}</strong>
+            <span style="font-size:12px;color:var(--main)">${g.current}/${g.target} (${pct}%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
+            <input type="number" value="${g.current}" style="width:80px;padding:4px 6px;font-size:11px"
+              onchange="updateGoal(${idx},this.value)">
+            ${g.deadline?`<span style="font-size:11px">📅 ${g.deadline}</span>`:''}
+          </div>
+        </div>
+        <button class="del" onclick="delGoal(${idx})">✖</button>
+      </div>`;
+  });
+  updateStatsBar();
+  checkAchievements();
+}
+function addGoal(){
+  const text = document.getElementById('goalText').value.trim();
+  const target = +document.getElementById('goalTarget').value;
+  if(!text || !target){ toast('⚠️ عبّي الحقول', 'warn'); return; }
+  goals.push({ text, target, current:+document.getElementById('goalCurrent').value||0,
+    deadline: document.getElementById('goalDeadline').value });
+  store.set('pl_goals', goals);
+  document.getElementById('goalText').value='';
+  renderGoals();
+  addXP(10, 'هدف جديد');
+}
+function updateGoal(i,v){
+  goals[i].current = +v;
+  store.set('pl_goals', goals);
+  if(goals[i].current>=goals[i].target){ confetti(); addXP(50, 'هدف مكتمل'); }
+  renderGoals();
+}
+function delGoal(i){ goals.splice(i,1); store.set('pl_goals', goals); renderGoals(); }
+
+let calDate = new Date();
+function renderCalendar(){
+  const y = calDate.getFullYear(), m = calDate.getMonth();
+  document.getElementById('calTitle').textContent =
+    calDate.toLocaleDateString('ar', {month:'long', year:'numeric'});
+  const grid = document.getElementById('calGrid'); grid.innerHTML='';
+  const dayNames = ['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+  dayNames.forEach(d=>{
+    const el = document.createElement('div');
+    el.className = 'cal-day-name'; el.textContent = d;
+    grid.appendChild(el);
+  });
+  const firstDay = new Date(y,m,1).getDay();
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const prevDays = new Date(y,m,0).getDate();
+  const posts = store.get('pl_posts',[]);
+  for(let i=0;i<firstDay;i++){
+    const d = prevDays - firstDay + i + 1;
+    grid.innerHTML += `<div class="cal-day other-month"><div class="day-num">${d}</div></div>`;
+  }
+  const todayStr = new Date().toISOString().split('T')[0];
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const dayPosts = posts.filter(p=>p.date === dateStr);
+    const events = dayPosts.slice(0,2).map(p=>`<div class="cal-event">${p.title.substring(0,10)}</div>`).join('');
+    grid.innerHTML += `<div class="cal-day ${isToday?'today':''}" onclick="calAddEvent('${dateStr}')">
+      <div class="day-num">${d}</div>${events}</div>`;
+  }
+  const total = firstDay + daysInMonth;
+  const remaining = (7 - total % 7) % 7;
+  for(let i=1;i<=remaining;i++){
+    grid.innerHTML += `<div class="cal-day other-month"><div class="day-num">${i}</div></div>`;
+  }
+}
+function changeMonth(d){ calDate.setMonth(calDate.getMonth()+d); renderCalendar(); }
+function calAddEvent(date){
+  const title = prompt('اسم المحتوى:');
+  if(!title) return;
+  const posts = store.get('pl_posts',[]);
+  posts.push({ id: Date.now(), title, date, platform:'—', type:'—',
+    reach:0, engage:0, save:0, share:0, comment:0 });
+  store.set('pl_posts', posts);
+  renderCalendar(); toast('📅 تم');
+  addXP(3, 'حدث بالتقويم');
+}
+
+const days = ['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
+const statuses = ['⬜ فكرة','🟡 قيد الإنجاز','✅ منشور'];
+let weekly = store.get('pl_weekly', days.map(()=>({plat:'',type:'',idea:'',status:statuses[0]})));
+function renderWeekly(){
+  const tb = document.getElementById('weeklyBody'); tb.innerHTML='';
+  days.forEach((d,idx)=>{
+    const w = weekly[idx] || {plat:'',type:'',idea:'',status:statuses[0]};
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><b>${d}</b></td>
+      <td><input value="${w.plat}" onchange="setWeekly(${idx},'plat',this.value)"></td>
+      <td><input value="${w.type}" onchange="setWeekly(${idx},'type',this.value)"></td>
+      <td><input value="${w.idea}" onchange="setWeekly(${idx},'idea',this.value)"></td>
+      <td><select onchange="setWeekly(${idx},'status',this.value)">
+        ${statuses.map(s=>`<option ${s===w.status?'selected':''}>${s}</option>`).join('')}
+      </select></td>`;
+    tb.appendChild(tr);
+  });
+}
+function setWeekly(i,k,v){ weekly[i][k]=v; store.set('pl_weekly', weekly); }
+
+const dailyIds = ['dailyDate','dailyPlat','dailyTime','dailyGoal','dailyContent','dailySteps','dailyNotes'];
+let daily = store.get('pl_daily', {});
+function loadDaily(){
+  dailyIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(daily[id]) el.value = daily[id];
+    el.addEventListener('input', ()=>{ daily[id]=el.value; store.set('pl_daily', daily); });
+  });
+}
+
+const platforms = ['إنستغرام','تيك توك','فيسبوك','يوتيوب','لينكدإن','بينترست'];
+let platData = store.get('pl_platforms', platforms.map(p=>({name:p,type:'',time:'',freq:'',tags:''})));
+function renderPlatforms(){
+  const tb = document.getElementById('platformsBody'); tb.innerHTML='';
+  platData.forEach((p,idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><b>${p.name}</b></td>
+      <td><input value="${p.type}" onchange="setPlat(${idx},'type',this.value)"></td>
+      <td><input value="${p.time}" onchange="setPlat(${idx},'time',this.value)"></td>
+      <td><input value="${p.freq}" onchange="setPlat(${idx},'freq',this.value)"></td>
+      <td><input value="${p.tags}" onchange="setPlat(${idx},'tags',this.value)"></td>`;
+    tb.appendChild(tr);
+  });
+}
+function setPlat(i,k,v){ platData[i][k]=v; store.set('pl_platforms', platData); }
+
+const TEMPLATES = [
+  {title:'📸 منشور ريلز تعليمي', type:'ريلز',
+   desc:'قالب منشور تعليمي: خطاف + 3 نصائح + CTA',
+   data:{content:'🎯 الخطاف: [سؤال يثير الفضول]\n\n1️⃣ [نصيحة 1]\n2️⃣ [نصيحة 2]\n3️⃣ [نصيحة 3]\n\n💡 خلاصة: [الدرس المستفاد]\n\n📌 احفظي المنشور + شاركيه مع من تحتاجه'}},
+  {title:'💫 كاروسيل قصصي', type:'كاروسيل',
+   desc:'10 شرائح تحكي قصة نجاح',
+   data:{content:'شريحة 1: العنوان الجاذب\nشريحة 2: المشكلة\nشريحة 3: محاولات فاشلة\nشريحة 4: نقطة التحول\nشريحة 5: الحل\nشريحة 6: النتائج\nشريحة 7: الدرس\nشريحة 8: كيف تطبقينه\nشريحة 9: نصيحة\nشريحة 10: CTA + حسابك'}},
+  {title:'🔥 ستوري تفاعلي', type:'ستوري',
+   desc:'سلسلة ستوريز مع استطلاع',
+   data:{content:'1. سؤال مفتوح\n2. استطلاع رأي (نعم/لا)\n3. صندوق أسئلة\n4. نصيحة سريعة\n5. CTA: زوروا الرابط'}},
+  {title:'💼 منشور لينكدإن احترافي', type:'نص',
+   desc:'منشور خبير مع قصة',
+   data:{content:'افتتاحية قوية (سطر واحد):\n\n[سؤال أو إحصائية صادمة]\n\nالقصة:\n[تجربة شخصية موجزة]\n\nالدرس:\n[3 نقاط قابلة للتطبيق]\n\nالخلاصة:\n[جملة تُحفظ]\n\nسؤال للنقاش:\n[سؤال يفتح الحوار]\n\n#هاشتاق1 #هاشتاق2'}},
+  {title:'🎬 سكربت فيديو قصير', type:'فيديو',
+   desc:'سكربت 30 ثانية',
+   data:{content:'[0-3 ثواني] الخطاف البصري + السؤال\n[3-10] المشكلة\n[10-20] الحل + 2 نصائح\n[20-27] مثال عملي\n[27-30] CTA: تابعيني للمزيد'}},
+  {title:'📋 نشاط تفاعلي', type:'ستوري',
+   desc:'زيادة التفاعل مع جمهورك',
+   data:{content:'1. سؤال: اختر من A أو B\n2. تحدي: نزلي صورة\n3. استطلاع\n4. شاركي النتائج\n5. ردّي على كل تعليق'}}
+];
+function renderTemplates(){
+  const box = document.getElementById('templatesList');
+  if(!box) return;
+  box.innerHTML = TEMPLATES.map((t,i) => `
+    <div class="template-card" onclick="useTemplate(${i})">
+      <h4>${t.title}</h4>
+      <p>${t.desc}</p>
+    </div>
+  `).join('');
+}
+function useTemplate(i){
+  const t = TEMPLATES[i];
+  document.getElementById('ideaText').value = t.data.content || t.title;
+  document.getElementById('ideaType').value = t.type;
+  showTab('ideas', document.querySelector('.tab'));
+  toast('📋 تم تحميل القالب');
+  addXP(2, 'استخدام قالب');
+}
+
+let pomoTime = 25*60, pomoTimer = null, pomoRunning = false, pomoMode = 'focus';
+const pomoDurations = { focus:25*60, short:5*60, long:15*60 };
+function updatePomoDisplay(){
+  const m = Math.floor(pomoTime/60), s = pomoTime%60;
+  document.getElementById('pomoDisplay').textContent =
+    `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function togglePomo(){
+  if(pomoRunning){
+    clearInterval(pomoTimer); pomoRunning = false;
+    document.getElementById('pomoBtn').textContent = '▶ متابعة';
+  } else {
+    pomoRunning = true;
+    document.getElementById('pomoBtn').textContent = '⏸ إيقاف';
+    pomoTimer = setInterval(()=>{
+      pomoTime--;
+      updatePomoDisplay();
+      if(pomoTime <= 0){
+        clearInterval(pomoTimer); pomoRunning = false;
+        document.getElementById('pomoBtn').textContent = '▶ بدء';
+        confetti();
+        if(pomoMode === 'focus'){
+          const sessions = store.get('pl_pomo_sessions',0)+1;
+          const minutes = store.get('pl_pomo_minutes',0)+25;
+          store.set('pl_pomo_sessions', sessions);
+          store.set('pl_pomo_minutes', minutes);
+          document.getElementById('pomoSessions').textContent = sessions;
+          document.getElementById('pomoMinutes').textContent = minutes;
+          updateStatsBar();
+          addXP(25, 'جلسة بومودورو');
+          toast('🍅 جلسة مكتملة!');
+        } else toast('✨ انتهت الراحة');
+      }
+    }, 1000);
+  }
+}
+function resetPomo(){
+  clearInterval(pomoTimer); pomoRunning = false;
+  pomoTime = pomoDurations[pomoMode];
+  updatePomoDisplay();
+  document.getElementById('pomoBtn').textContent = '▶ بدء';
+}
+function setPomoMode(mode, btn){
+  document.querySelectorAll('.pomo-mode').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  pomoMode = mode;
+  resetPomo();
+}
+
+let posts = store.get('pl_posts', []);
+let charts = {};
+function addPost(){
+  const title = document.getElementById('inTitle').value.trim();
+  if(!title){ toast('⚠️ اكتبي الاسم', 'warn'); return; }
+  posts.push({
+    id: Date.now(), title,
+    platform: document.getElementById('inPlatform').value,
+    type: document.getElementById('inType').value,
+    reach: +document.getElementById('inReach').value||0,
+    engage: +document.getElementById('inEngage').value||0,
+    save: +document.getElementById('inSave').value||0,
+    share: +document.getElementById('inShare').value||0,
+    comment: +document.getElementById('inComment').value||0,
+    date: new Date().toISOString().split('T')[0]
+  });
+  store.set('pl_posts', posts);
+  document.getElementById('inTitle').value='';
+  ['inReach','inEngage','inSave','inShare','inComment'].forEach(id=>document.getElementById(id).value=0);
+  renderPosts(); renderKPI(); renderCharts(); updateStatsBar();
+  renderHeatmap();
+  addXP(15, 'منشور جديد');
+}
+function engRate(p){ return p.reach ? ((p.engage+p.save+p.share+p.comment)/p.reach*100) : 0; }
+function score(p){ return Math.min(10, Math.round(engRate(p))); }
+function renderPosts(){
+  const tb = document.getElementById('postsBody'); tb.innerHTML='';
+  document.getElementById('postsEmpty').style.display = posts.length? 'none':'block';
+  posts.forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.title}</td><td>${p.platform}</td><td>${p.type}</td>
+      <td>${p.reach}</td><td>${p.engage}</td><td>${p.save}</td>
+      <td>${p.share}</td><td>${p.comment}</td>
+      <td><b style="color:var(--main)">${engRate(p).toFixed(1)}%</b></td>
+      <td>${score(p)}</td>
+      <td><button class="del" onclick="delPost(${p.id})">✖</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function delPost(id){
+  if(!confirm('حذف؟')) return;
+  posts = posts.filter(p=>p.id!==id);
+  store.set('pl_posts', posts);
+  renderPosts(); renderKPI(); renderCharts(); updateStatsBar();
+}
+function clearPosts(){
+  if(!confirm('مسح كل المنشورات؟')) return;
+  posts=[]; store.set('pl_posts',[]);
+  renderPosts(); renderKPI(); renderCharts(); updateStatsBar();
+}
+function renderKPI(){
+  const totalReach = posts.reduce((s,p)=>s+p.reach,0);
+  const totalEng = posts.reduce((s,p)=>s+p.engage+p.save+p.share+p.comment,0);
+  const avgRate = totalReach ? (totalEng/totalReach*100).toFixed(1) : 0;
+  const byPlat={}; posts.forEach(p=>byPlat[p.platform]=(byPlat[p.platform]||0)+p.reach);
+  const bestPlat = Object.entries(byPlat).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
+  const byType={}; posts.forEach(p=>byType[p.type]=(byType[p.type]||0)+(p.engage+p.save+p.share+p.comment));
+  const bestType = Object.entries(byType).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
+  const bestPost = [...posts].sort((a,b)=>engRate(b)-engRate(a))[0];
+  document.getElementById('kpiGrid').innerHTML = [
+    {val: posts.length, lbl:'منشورات'},
+    {val: totalReach.toLocaleString(), lbl:'وصول'},
+    {val: totalEng.toLocaleString(), lbl:'تفاعل'},
+    {val: avgRate+'%', lbl:'متوسط'},
+    {val: bestPlat, lbl:'أفضل منصة'},
+    {val: bestType, lbl:'أفضل نوع'},
+    {val: bestPost? bestPost.title.substring(0,15) : '—', lbl:'أفضل منشور'}
+  ].map(k=>`<div class="kpi"><div class="val">${k.val}</div><div class="lbl">${k.lbl}</div></div>`).join('');
+}
+function renderCharts(){
+  if(typeof Chart === 'undefined') return;
+  const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+  const txtColor = isDark ? '#E8D5D6' : '#8B5E5F';
+  const gridColor = isDark ? '#4A3E40' : '#E8DDD3';
+  const colors = ['#C08485','#D9A5A6','#E8C4C5','#8B5E5F','#B98A8B','#F0D7D8','#9B7EB5','#5FA8A0'];
+  const platLabels = [...new Set(posts.map(p=>p.platform))];
+  const platData = platLabels.map(l=>posts.filter(p=>p.platform===l).reduce((s,p)=>s+p.reach,0));
+  const typeLabels = [...new Set(posts.map(p=>p.type))];
+  const typeData = typeLabels.map(l=>posts.filter(p=>p.type===l).reduce((s,p)=>s+p.engage+p.save+p.share+p.comment,0));
+  const trendSorted = [...posts].sort((a,b)=>(a.id-b.id));
+  const trendData = trendSorted.map(p=>p.reach);
+  const trendLabels = trendSorted.map((p,i)=>i+1);
+  const platEngData = platLabels.map(l=>posts.filter(p=>p.platform===l).reduce((s,p)=>s+p.engage+p.save+p.share+p.comment,0));
+
+  if(charts.plat) charts.plat.destroy();
+  charts.plat = new Chart(document.getElementById('chartPlatform'), {
+    type:'bar',
+    data:{ labels: platLabels, datasets:[{ label:'الوصول', data: platData, backgroundColor: colors, borderRadius:8 }]},
+    options:{ plugins:{legend:{display:false,labels:{color:txtColor}}},
+      scales:{ y:{beginAtZero:true,ticks:{color:txtColor},grid:{color:gridColor}},
+               x:{ticks:{color:txtColor},grid:{color:gridColor}} } }
+  });
+  if(charts.type) charts.type.destroy();
+  charts.type = new Chart(document.getElementById('chartType'), {
+    type:'doughnut',
+    data:{ labels: typeLabels, datasets:[{ data: typeData, backgroundColor: colors }]},
+    options:{ plugins:{legend:{position:'bottom',labels:{color:txtColor}}} }
+  });
+  if(charts.trend) charts.trend.destroy();
+  charts.trend = new Chart(document.getElementById('chartTrend'), {
+    type:'line',
+    data:{ labels: trendLabels, datasets:[{ label:'الوصول', data: trendData,
+      borderColor:'#C08485', backgroundColor:'rgba(192,132,133,.2)',
+      fill:true, tension:.4, pointBackgroundColor:'#C08485' }]},
+    options:{ plugins:{legend:{display:false,labels:{color:txtColor}}},
+      scales:{ y:{beginAtZero:true,ticks:{color:txtColor},grid:{color:gridColor}},
+               x:{ticks:{color:txtColor},grid:{color:gridColor}} } }
+  });
+  if(charts.radar) charts.radar.destroy();
+  charts.radar = new Chart(document.getElementById('chartRadar'), {
+    type:'radar',
+    data:{ labels: platLabels, datasets:[{ label:'تفاعل', data: platEngData,
+      borderColor:'#C08485', backgroundColor:'rgba(192,132,133,.3)',
+      pointBackgroundColor:'#C08485' }]},
+    options:{ plugins:{legend:{display:false,labels:{color:txtColor}}},
+      scales:{ r:{beginAtZero:true,ticks:{color:txtColor,backdropColor:'transparent'},
+                 grid:{color:gridColor},angleLines:{color:gridColor},
+                 pointLabels:{color:txtColor}} } }
+  });
+}
+
+const analysisIds = ['aSuccess','aFail','aRepeat','aStop','aTry','aGoal'];
+let analysis = store.get('pl_analysis', {});
+function loadAnalysis(){
+  analysisIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(analysis[id]) el.value = analysis[id];
+    el.addEventListener('input', ()=>{ analysis[id]=el.value; store.set('pl_analysis', analysis); });
+  });
+}
+
+function renderInsights(){
+  const box = document.getElementById('insightsList');
+  const deep = document.getElementById('deepStats');
+  if(!box) return;
+  if(!posts.length){
+    box.innerHTML = '<div class="empty">أضيفي منشورات في التحليل للحصول على استنتاجات</div>';
+    deep.innerHTML = '';
+    return;
+  }
+  const totalReach = posts.reduce((s,p)=>s+p.reach,0);
+  const totalEng = posts.reduce((s,p)=>s+p.engage+p.save+p.share+p.comment,0);
+  const avgRate = totalReach ? (totalEng/totalReach*100) : 0;
+  const avgReach = totalReach / posts.length;
+  const bestPost = [...posts].sort((a,b)=>engRate(b)-engRate(a))[0];
+  const worstPost = [...posts].sort((a,b)=>engRate(a)-engRate(b))[0];
+  const saveRate = totalReach ? (posts.reduce((s,p)=>s+p.save,0)/totalReach*100) : 0;
+  const shareRate = totalReach ? (posts.reduce((s,p)=>s+p.share,0)/totalReach*100) : 0;
+  const commentRate = totalReach ? (posts.reduce((s,p)=>s+p.comment,0)/totalReach*100) : 0;
+
+  const byDay = {};
+  posts.forEach(p => {
+    if(p.date){
+      byDay[p.date] = byDay[p.date] || {reach:0, count:0};
+      byDay[p.date].reach += p.reach;
+      byDay[p.date].count++;
+    }
+  });
+  const bestDay = Object.entries(byDay).sort((a,b)=>(b[1].reach/b[1].count)-(a[1].reach/a[1].count))[0];
+
+  const insights = [
+    {icon:'📊', title:'متوسط الوصول للمنشور', value: Math.round(avgReach).toLocaleString()},
+    {icon:'💯', title:'معدل التفاعل العام', value: avgRate.toFixed(2)+'%'},
+    {icon:'💾', title:'معدل الحفظ', value: saveRate.toFixed(2)+'%'},
+    {icon:'📤', title:'معدل المشاركة', value: shareRate.toFixed(2)+'%'},
+    {icon:'💬', title:'معدل التعليقات', value: commentRate.toFixed(2)+'%'},
+    {icon:'🏆', title:'أفضل منشور', value: bestPost.title.substring(0,25)},
+    {icon:'📉', title:'أضعف منشور', value: worstPost.title.substring(0,25)},
+    {icon:'📅', title:'أفضل يوم', value: bestDay ? bestDay[0] : '—'}
+  ];
+  box.innerHTML = insights.map(i => `
+    <div class="insight-box">
+      <h4>${i.icon} ${i.title}</h4>
+      <div class="big-num">${i.value}</div>
+    </div>
+  `).join('');
+
+  deep.innerHTML = [
+    {val: posts.length, lbl:'إجمالي المنشورات'},
+    {val: totalReach.toLocaleString(), lbl:'إجمالي الوصول'},
+    {val: totalEng.toLocaleString(), lbl:'إجمالي التفاعل'},
+    {val: Object.keys(byDay).length, lbl:'أيام النشر'},
+    {val: (totalEng/posts.length).toFixed(0), lbl:'متوسط التفاعل/منشور'},
+    {val: (totalReach/posts.length).toFixed(0), lbl:'متوسط الوصول/منشور'}
+  ].map(k=>`<div class="kpi"><div class="val">${k.val}</div><div class="lbl">${k.lbl}</div></div>`).join('');
+}
+
+function renderSuggestions(){
+  const list = document.getElementById('suggestionsList');
+  const suggestions = generateSuggestions();
+  list.innerHTML = suggestions.length
+    ? suggestions.map(s=>`<div class="suggest-item">${s}</div>`).join('')
+    : '<div class="empty">أضيفي منشورات للتحليل</div>';
+  renderTipsLibrary();
+}
+function generateSuggestions(){
+  const out = [];
+  if(!posts.length){
+    out.push('<strong>🚀 ابدئي:</strong> أضيفي أول 3 منشورات في التحليل.');
+    return out;
+  }
+  const byPlat = {};
+  posts.forEach(p => {
+    byPlat[p.platform] = byPlat[p.platform] || {reach:0, eng:0};
+    byPlat[p.platform].reach += p.reach;
+    byPlat[p.platform].eng += (p.engage+p.save+p.share+p.comment);
+  });
+  const platEntries = Object.entries(byPlat);
+  const bestPlat = [...platEntries].sort((a,b)=>b[1].reach-a[1].reach)[0];
+  const worstPlat = [...platEntries].sort((a,b)=>a[1].reach-b[1].reach)[0];
+  if(bestPlat && worstPlat && bestPlat[0] !== worstPlat[0]){
+    out.push(`<strong>📱 أفضل منصة:</strong> ${bestPlat[0]} (${bestPlat[1].reach.toLocaleString()} وصول). زيدي النشر بنسبة 30%.`);
+    out.push(`<strong>⚠️ ضعيفة:</strong> ${worstPlat[0]}. جربي نوع محتوى مختلف.`);
+  }
+  const byType = {};
+  posts.forEach(p => {
+    byType[p.type] = byType[p.type] || {eng:0};
+    byType[p.type].eng += (p.engage+p.save+p.share+p.comment);
+  });
+  const bestType = Object.entries(byType).sort((a,b)=>b[1].eng-a[1].eng)[0];
+  if(bestType) out.push(`<strong>🏆 النوع الرابح:</strong> "${bestType[0]}" — اجعليه 40% من خطتك.`);
+  const totalReach = posts.reduce((s,p)=>s+p.reach,0);
+  const totalEng = posts.reduce((s,p)=>s+(p.engage+p.save+p.share+p.comment),0);
+  const rate = totalReach ? (totalEng/totalReach*100) : 0;
+  if(rate < 2) out.push(`<strong>📉 معدل منخفض (${rate.toFixed(1)}%):</strong> ركزي على محتوى تفاعلي.`);
+  else if(rate > 8) out.push(`<strong>🎉 ممتاز (${rate.toFixed(1)}%)!:</strong> كرري الصيغ الناجحة.`);
+  else out.push(`<strong>📊 جيد (${rate.toFixed(1)}%):</strong> حسّني أول 3 ثوانٍ.`);
+  const pendingIdeas = ideas.filter(i=>!i.done).length;
+  if(pendingIdeas > 5) out.push(`<strong>💡 لديك ${pendingIdeas} فكرة:</strong> حوّلي 3 لمنشورات هذا الأسبوع.`);
+  const nearGoals = goals.filter(g=>g.current/g.target >= 0.75 && g.current < g.target);
+  nearGoals.forEach(g=>{
+    out.push(`<strong>🎯 هدف قريب:</strong> "${g.text}" وصل ${Math.round(g.current/g.target*100)}%.`);
+  });
+  return out.slice(0, 6);
+}
+function renderTipsLibrary(){
+  const tips = [
+    {icon:'📸', title:'أول 3 ثوانٍ', text:'80% من القرار في أول 3 ثوانٍ. ابدئي بخُطاف.'},
+    {icon:'🔁', title:'80/20', text:'80% قيمة، 20% ترويج.'},
+    {icon:'⏰', title:'أوقات النشر', text:'اختبر أسبوعين ثم ثبّتي الأفضل.'},
+    {icon:'💬', title:'سؤال النهاية', text:'كل منشور بسؤال يرفع التعليقات 40%+.'},
+    {icon:'🎨', title:'هوية بصرية', text:'2-3 ألوان وخط ثابت.'},
+    {icon:'📊', title:'قياس أسبوعي', text:'راجعي KPIs كل جمعة.'},
+    {icon:'✂️', title:'إعادة تدوير', text:'منشور ناجح = 3 صيغ.'},
+    {icon:'🤝', title:'تفاعل متبادل', text:'10 دقائق رد على التعليقات يومياً.'},
+    {icon:'📱', title:'اختبار A/B', text:'جربي عنوانين مختلفين لنفس المنشور.'},
+    {icon:'🎥', title:'ابدئي بالصوت', text:'الأصوات الأصلية تعطي ثقة أعلى.'}
+  ];
+  document.getElementById('tipsList').innerHTML = tips.map(t=>
+    `<div class="suggest-item"><strong>${t.icon} ${t.title}:</strong> ${t.text}</div>`
+  ).join('');
+}
+
+const reviewIds = ['rSuccess','rFail','rBest','rIdeas','rGoal'];
+let review = store.get('pl_review', {});
+function loadReview(){
+  reviewIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(review[id]) el.value = review[id];
+    el.addEventListener('input', ()=>{ review[id]=el.value; store.set('pl_review', review); });
+  });
+}
+
+function exportPDF(){
+  toast('📄 جاري تجهيز الطباعة...');
+  setTimeout(()=>window.print(), 500);
+}
+
+function exportData(){
+  const data = {};
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k.startsWith('pl_')){
+      try{ data[k] = JSON.parse(localStorage.getItem(k)); }
+      catch{ data[k] = localStorage.getItem(k); }
+    }
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `planner-ultra-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📤 تم التصدير');
+}
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!confirm('⚠️ سيتم الاستبدال. متابعة؟')) return;
+      Object.keys(data).forEach(k=>{
+        if(k.startsWith('pl_')){
+          localStorage.setItem(k, JSON.stringify(data[k]));
+        }
+      });
+      toast('📥 تم — جاري التحميل');
+      setTimeout(()=>location.reload(), 1000);
+    }catch(err){ toast('❌ ملف غير صالح', 'error'); }
+  };
+  reader.readAsText(file);
+}
+
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function clearAll(){
+  if(!confirm('⚠️ مسح كل البيانات؟')) return;
+  if(!confirm('متأكدة 100%؟')) return;
+  localStorage.clear();
+  location.reload();
+}
+
+function generateIconDataURL(){
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 512;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#C08485';
+  ctx.fillRect(0,0,512,512);
+  ctx.fillStyle = '#FAF0E6';
+  ctx.font = 'bold 300px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('📔', 256, 270);
+  return c.toDataURL('image/png');
+}
+function setupPWA(){
+  const iconURL = generateIconDataURL();
+  document.getElementById('favIcon').href = iconURL;
+  document.getElementById('appleIcon').href = iconURL;
+  const manifest = {
+    name: "أبية",
+    short_name: "أبية",
+    description: "نظام متكامل للتخطيط والنشر والتحليل",
+    start_url: "./", scope: "./",
+    display: "standalone", orientation: "portrait",
+    background_color: "#FAF0E6", theme_color: "#C08485",
+    lang: "ar", dir: "rtl",
+    icons: [
+      { src: iconURL, sizes: "192x192", type: "image/png", purpose: "any maskable" },
+      { src: iconURL, sizes: "512x512", type: "image/png", purpose: "any maskable" }
+    ]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+  const manifestURL = URL.createObjectURL(manifestBlob);
+  const manifestLink = document.createElement('link');
+  manifestLink.rel = 'manifest';
+  manifestLink.href = manifestURL;
+  document.head.appendChild(manifestLink);
+
+  const swCode = `
+    const CACHE = 'planner-ultra-v5';
+    const ASSETS = ['./', './index.html', 'https://cdn.jsdelivr.net/npm/chart.js'];
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(()=>{})));
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(caches.keys().then(keys => Promise.all(
+        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+      )));
+      self.clients.claim();
+    });
+    self.addEventListener('fetch', e => {
+      if(e.request.method !== 'GET') return;
+      e.respondWith(
+        caches.match(e.request).then(cached => {
+          if(cached) return cached;
+          return fetch(e.request).then(res => {
+            if(res.status === 200){
+              const clone = res.clone();
+              caches.open(CACHE).then(c => c.put(e.request, clone));
+            }
+            return res;
+          }).catch(() => {
+            if(e.request.headers.get('accept')?.includes('text/html')){
+              return caches.match('./index.html');
+            }
+          });
+        })
+      );
+    });
+  `;
+  const swBlob = new Blob([swCode], {type:'application/javascript'});
+  const swURL = URL.createObjectURL(swBlob);
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register(swURL)
+      .then(() => console.log('✅ SW مسجل'))
+      .catch(err => console.log('⚠️ SW:', err.message));
+  }
+}
+
+let deferredPrompt = null;
+setupPWA();
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!localStorage.getItem('pl_install_dismissed')) {
+    document.getElementById('installBanner').style.display = 'flex';
+  }
+});
+function installPWA() {
+  if (!deferredPrompt) {
+    alert('التثبيت غير متاح. من قائمة المتصفح: "إضافة إلى الشاشة الرئيسية"');
+    return;
+  }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((choice) => {
+    if (choice.outcome === 'accepted') {
+      document.getElementById('installBanner').style.display = 'none';
+    }
+    deferredPrompt = null;
+  });
+}
+function dismissInstall(){
+  document.getElementById('installBanner').style.display = 'none';
+  localStorage.setItem('pl_install_dismissed', '1');
+}
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  document.getElementById('installBanner').style.display = 'none';
+}
+
+window.addEventListener('online', ()=>document.body.classList.remove('offline'));
+window.addEventListener('offline', ()=>document.body.classList.add('offline'));
+if(!navigator.onLine) document.body.classList.add('offline');
+
+document.addEventListener('keydown', (e) => {
+  if(e.ctrlKey || e.metaKey){
+    const key = e.key.toLowerCase();
+    if(key === 'k'){ e.preventDefault(); document.getElementById('globalSearch').focus(); }
+    if(key === 'd'){ e.preventDefault(); showTab('dashboard', null); }
+    if(key === 'i'){ e.preventDefault(); showTab('ideas', null); }
+    if(key === 'a'){ e.preventDefault(); showTab('analysis', null); }
+    if(key === 'p'){ e.preventDefault(); showTab('pomodoro', null); }
+    if(key === 'f'){ e.preventDefault(); toggleFocusMode(); }
+  }
+  if(e.key === 'Escape'){
+    document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+    document.getElementById('searchResults')?.classList.remove('show');
+  }
+});
+
+let focusTimerInterval = null, focusTimeLeft = 25*60, focusRunning = false;
+const focusQuotes = [
+  '"التركيز هو مفتاح الإنجاز."',
+  '"لا تفعلي كل شيء — افعلي ما يهم."',
+  '"25 دقيقة تركيز أفضل من 3 ساعات تشتت."',
+  '"الجودة تأتي من التركيز، لا من الكمية."',
+  '"كل دقيقة تركيز = خطوة نحو هدفك."'
+];
+function toggleFocusMode(){
+  const el = document.getElementById('focusMode');
+  if(el.classList.contains('active')) exitFocusMode();
+  else {
+    el.classList.add('active');
+    document.getElementById('focusQuote').textContent =
+      focusQuotes[Math.floor(Math.random()*focusQuotes.length)];
+  }
+}
+function exitFocusMode(){
+  document.getElementById('focusMode').classList.remove('active');
+  clearInterval(focusTimerInterval);
+  focusRunning = false;
+  focusTimeLeft = 25*60;
+  updateFocusDisplay();
+  document.getElementById('focusBtn').textContent = '▶ بدء';
+}
+function updateFocusDisplay(){
+  const m = Math.floor(focusTimeLeft/60), s = focusTimeLeft%60;
+  document.getElementById('focusTimer').textContent =
+    `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function toggleFocusTimer(){
+  if(focusRunning){
+    clearInterval(focusTimerInterval);
+    focusRunning = false;
+    document.getElementById('focusBtn').textContent = '▶ متابعة';
+  } else {
+    focusRunning = true;
+    document.getElementById('focusBtn').textContent = '⏸ إيقاف';
+    focusTimerInterval = setInterval(()=>{
+      focusTimeLeft--;
+      updateFocusDisplay();
+      if(focusTimeLeft <= 0){
+        clearInterval(focusTimerInterval);
+        focusRunning = false;
+        confetti();
+        toast('🎉 جلسة تركيز مكتملة!', 'success');
+        addXP(30, 'جلسة تركيز');
+        exitFocusMode();
+      }
+    }, 1000);
+  }
+}
+
+function init(){
+  renderIdeas();
+  renderInspo();
+  renderVision();
+  renderGoals();
+  renderWeekly();
+  renderSchedule();
+  loadDaily();
+  renderPlatforms();
+  renderTemplates();
+  updatePomoDisplay();
+  document.getElementById('pomoSessions').textContent = store.get('pl_pomo_sessions',0);
+  document.getElementById('pomoMinutes').textContent = store.get('pl_pomo_minutes',0);
+  renderPosts();
+  renderKPI();
+  renderCharts();
+  loadAnalysis();
+  loadReview();
+  renderDashboard();
+  updateStatsBar();
+  updateXPDisplay();
+  renderAchievements();
+  checkAchievements();
+}
+init();
+</script>
+</body>
+</html>

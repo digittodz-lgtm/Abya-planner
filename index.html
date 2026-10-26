@@ -1,4 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>✨ بلانر أبيه</title>
+<meta name="description" content="نظام ذكي متكامل لإدارة المحتوى">
+<meta name="theme-color" content="#C08485">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="أبية">
+<link rel="apple-touch-icon" id="appleIcon">
+<link rel="icon" id="favIcon">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root{
+    --main:#C08485; --bg:#FAF0E6; --card:#FFFFFF;
+    --line:#E8DDD3; --text:#8B5E5F; --dark:#6B4445;
+    --success:#7BAE7F; --warn:#E0A458; --danger:#C0574F; --info:#7A9CB8;
+    --purple:#9B7EB5; --teal:#5FA8A0;
+    --shadow:0 2px 12px rgba(192,132,133,.12);
+    --shadow-lg:0 8px 30px rgba(192,132,133,.25);
+    --radius:16px;
+  }
+  [data-theme="dark"]{
+    --main:#D9A5A6; --bg:#1F191B; --card:#2A2224;
+    --line:#3E3335; --text:#E8D5D6; --dark:#F5E6E7;
+    --shadow:0 2px 12px rgba(0,0,0,.4);
+    --shadow-lg:0 8px 30px rgba(0,0,0,.6);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,sans-serif;
+    -webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);padding:16px;line-height:1.7;
+    transition:.3s;padding-bottom:90px;overflow-x:hidden}
+  .container{max-width:1200px;margin:0 auto}
 
+  header{display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:10px;margin-bottom:14px;position:sticky;top:0;
+    background:var(--bg);padding:10px 0;z-index:50;border-bottom:1px solid var(--line)}
+  h1{color:var(--main);font-size:24px;display:flex;align-items:center;gap:8px}
+  .subtitle{font-size:11px;color:var(--text);opacity:.8}
+  .header-actions{display:flex;gap:5px;flex-wrap:wrap}
+  .icon-btn{background:var(--card);border:1px solid var(--line);color:var(--dark);
+    padding:8px 11px;border-radius:10px;cursor:pointer;font-size:14px;transition:.2s;
+    position:relative}
+  .icon-btn:hover{background:var(--main);color:#fff;transform:translateY(-2px)}
+  
+  .search-bar{position:relative;margin-bottom:14px}
+  .search-bar input{padding-right:40px;font-size:14px}
+  .search-bar::before{content:'🔍';position:absolute;right:14px;top:50%;
+    transform:translateY(-50%);font-size:16px;z-index:1;pointer-events:none}
+  .search-results{position:absolute;top:100%;right:0;left:0;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;max-height:300px;overflow-y:auto;
+    z-index:200;margin-top:4px;box-shadow:var(--shadow-lg);display:none}
+  .search-results.show{display:block}
+  .search-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line);
+    font-size:13px;transition:.2s}
+  .search-item:hover{background:rgba(192,132,133,.1)}
+  .search-item .cat{font-size:10px;color:var(--main);font-weight:700}
 
   .stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));
     gap:8px;margin-bottom:14px}
@@ -50,6 +109,8 @@
   .btn-info{background:var(--info);color:#fff}
   .btn-purple{background:var(--purple);color:#fff}
   .btn-sm{padding:5px 10px;font-size:11px;margin:0}
+  .btn-gallery { background: var(--warn); color: #fff; width: 100%; margin-top: 5px; }
+  .btn-camera { background: var(--success); color: #fff; width: 100%; margin-top: 5px; }
 
   .table-wrap{overflow-x:auto;border-radius:10px}
   table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:500px}
@@ -299,6 +360,7 @@
   <div class="tabs">
     <button class="tab active" onclick="showTab('dashboard',this)">🏠 الرئيسية</button>
     <button class="tab" onclick="showTab('ideas',this)">💡 الأفكار</button>
+    <button class="tab" onclick="showTab('longideas',this)">📝 كتابة مطولة</button> <!-- القسم الجديد -->
     <button class="tab" onclick="showTab('inspo',this)">✨ الإلهام</button>
     <button class="tab" onclick="showTab('vision',this)">🖼️ الرؤية</button>
     <button class="tab" onclick="showTab('goals',this)">🎯 الأهداف</button>
@@ -336,6 +398,28 @@
     <div class="card">
       <h2>📊 نشاط آخر 7 أيام</h2>
       <div class="heatmap" id="heatmapWeek"></div>
+    </div>
+  </div>
+
+  <!-- ============ قسم الكتابة المطولة (جديد) ============ -->
+  <div id="page-longideas" class="page">
+    <div class="card">
+      <h2>📝 كتابة مطولة</h2>
+      <p class="hint" style="margin-bottom:14px">اكتبي أفكارك بالتفصيل مع عنوان واضح (مثلاً: سيناريو فيديو، مقال، قصة...).</p>
+      <div class="form-grid">
+        <div>
+          <label>عنوان الفكرة</label>
+          <input id="longIdeaTitle" placeholder="مثال: سيناريو ريلز عن التسويق...">
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label>التفاصيل (نص طويل)</label>
+        <textarea id="longIdeaContent" rows="8" placeholder="اكتبي هنا كل ما يجول في خاطرك..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="addLongIdea()" style="width:100%">💾 حفظ الفكرة</button>
+      
+      <div class="empty" id="longIdeasEmpty" style="margin-top:20px;">لا توجد أفكار مطولة بعد.</div>
+      <div id="longIdeasList" style="margin-top:20px;"></div>
     </div>
   </div>
 
@@ -407,16 +491,33 @@
   <div id="page-vision" class="page">
     <div class="card">
       <h2>🖼️ لوحة الرؤية</h2>
-      <div class="form-grid">
-        <div>
-          <label>اختر صورة من الاستوديو 📷</label>
-          <input id="visionFile" type="file" accept="image/*" style="padding:6px">
+      <div class="form-grid" style="grid-template-columns: 1fr;">
+        
+        <div style="background:var(--bg); padding:12px; border-radius:10px; border:1px dashed var(--main);">
+          <label style="font-size:14px; color:var(--main); margin-bottom:8px;">📷 إضافة صورة (الخيارات الثلاثة)</label>
+          
+          <!-- الخيار 1: الكاميرا -->
+          <input type="file" id="visionCamera" accept="image/*" capture="environment" style="display:none" onchange="processImage(this)">
+          <button class="btn btn-camera" onclick="document.getElementById('visionCamera').click()">📸 التقط صورة بالكاميرا</button>
+
+          <!-- الخيار 2: الاستوديو -->
+          <input type="file" id="visionFile" accept="image/*" style="display:none" onchange="processImage(this)">
+          <button class="btn btn-gallery" onclick="document.getElementById('visionFile').click()">🖼️ اختر من الاستوديو (قد لا يعمل في التطبيق)</button>
+          
+          <p class="hint" style="text-align:center; margin:10px 0;">- أو -</p>
+
+          <!-- الخيار 3: الرابط -->
+          <label>🔗 لصق رابط صورة من الإنترنت (الخيار الأضمن 100%)</label>
+          <input id="visionUrl" placeholder="https://example.com/image.jpg">
         </div>
-        <div><label>التسمية (اختياري)</label><input id="visionLabel"></div>
+
+        <div><label>تسمية الصورة (اختياري)</label><input id="visionLabel"></div>
+        
       </div>
-      <button class="btn btn-primary" onclick="addVision()">➕ إضافة الصورة</button>
-      <div class="vision-grid" style="margin-top:14px" id="visionGrid"></div>
-      <div class="empty" id="visionEmpty">لا صور</div>
+      <button class="btn btn-primary" onclick="addVisionUrl()" style="width:100%;">➕ إضافة الصورة (إذا استخدمتِ الرابط)</button>
+      
+      <div class="vision-grid" style="margin-top:20px" id="visionGrid"></div>
+      <div class="empty" id="visionEmpty">لا صور مضافة بعد</div>
     </div>
   </div>
 
@@ -630,6 +731,7 @@
 <div class="bottom-nav">
   <button class="active" onclick="showTab('dashboard',this)"><span>🏠</span><span>الرئيسية</span></button>
   <button onclick="showTab('ideas',this)"><span>💡</span><span>أفكار</span></button>
+  <button onclick="showTab('longideas',this)"><span>📝</span><span>كتابة</span></button> <!-- زر جديد في الشريط السفلي -->
   <button onclick="showTab('schedule',this)"><span>⏰</span><span>البرنامج</span></button>
   <button onclick="showTab('analysis',this)"><span>📊</span><span>تحليل</span></button>
   <button onclick="openModal('helpModal')"><span>❓</span><span>مساعدة</span></button>
@@ -647,20 +749,11 @@
   <div class="modal-content">
     <button class="modal-close" onclick="closeModal('helpModal')">×</button>
     <h3>❓ دليل أبيه</h3>
-    <h4 style="color:var(--main);margin:14px 0 8px;font-size:14px">⌨️ اختصارات</h4>
-    <p style="font-size:12px;line-height:2">
-      <kbd>Ctrl</kbd>+<kbd>K</kbd> بحث<br>
-      <kbd>Ctrl</kbd>+<kbd>D</kbd> الرئيسية<br>
-      <kbd>Ctrl</kbd>+<kbd>I</kbd> الأفكار<br>
-      <kbd>Ctrl</kbd>+<kbd>A</kbd> التحليل<br>
-      <kbd>Ctrl</kbd>+<kbd>P</kbd> بومودورو<br>
-      <kbd>Ctrl</kbd>+<kbd>F</kbd> وضع التركيز<br>
-      <kbd>Esc</kbd> إغلاق
-    </p>
     <h4 style="color:var(--main);margin:14px 0 8px;font-size:14px">🌟 الميزات</h4>
     <ul style="padding-right:20px;font-size:12px;line-height:2">
+      <li>📝 كتابة مطولة للأفكار</li>
       <li>⏰ برنامج أسبوعي كامل</li>
-      <li>🖼️ رفع صور من الاستوديو</li>
+      <li>🖼️ إضافة صور (كاميرا / استوديو / رابط)</li>
       <li>🔍 بحث شامل</li>
       <li>🎯 وضع تركيز</li>
       <li>🏆 نظام XP وإنجازات</li>
@@ -822,6 +915,12 @@ function globalSearch(query){
   store.get('pl_ideas',[]).forEach(i => {
     if(i.text?.toLowerCase().includes(q)) matches.push({cat:'💡 فكرة', text:i.text});
   });
+  // البحث في الأفكار المطولة الجديدة
+  store.get('pl_longideas',[]).forEach(i => {
+    if(i.title?.toLowerCase().includes(q) || i.content?.toLowerCase().includes(q)) {
+      matches.push({cat:'📝 فكرة مطولة', text:i.title});
+    }
+  });
   store.get('pl_posts',[]).forEach(p => {
     if(p.title?.toLowerCase().includes(q)) matches.push({cat:'📝 منشور', text:p.title});
   });
@@ -883,6 +982,7 @@ function showTab(id, btn){
   if(id==='insights') renderInsights();
   if(id==='templates') renderTemplates();
   if(id==='schedule') renderSchedule();
+  if(id==='longideas') renderLongIdeas(); // تحديث عرض الأفكار المطولة
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -1071,6 +1171,50 @@ function delSchedule(day, id){
   renderSchedule();
 }
 
+/* ============ قسم الكتابة المطولة (جديد) ============ */
+let longIdeas = store.get('pl_longideas', []);
+
+function renderLongIdeas() {
+  const box = document.getElementById('longIdeasList');
+  if(!box) return;
+  
+  document.getElementById('longIdeasEmpty').style.display = longIdeas.length ? 'none' : 'block';
+  
+  box.innerHTML = longIdeas.map((idea, idx) => `
+    <div class="goal-item" style="flex-direction:column; align-items:flex-start; gap:8px; position:relative; padding:15px; background:var(--card);">
+      <h4 style="color:var(--main); width:100%; border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:5px; font-size:15px;">${idea.title}</h4>
+      <p style="white-space: pre-wrap; font-size:13px; color:var(--dark); width:100%; line-height:1.8;">${idea.content}</p>
+      <div style="width:100%; text-align:left; font-size:10px; color:var(--text); margin-top:5px; opacity:0.7;">📅 ${idea.date || ''}</div>
+      <button class="del" onclick="delLongIdea(${idx})" style="position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.05); border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">✖</button>
+    </div>
+  `).join('');
+}
+
+function addLongIdea() {
+  const title = document.getElementById('longIdeaTitle').value.trim();
+  const content = document.getElementById('longIdeaContent').value.trim();
+  
+  if(!title || !content) { toast('⚠️ اكتبي العنوان والمحتوى', 'warn'); return; }
+  
+  longIdeas.unshift({ title, content, date: new Date().toISOString().split('T')[0] });
+  store.set('pl_longideas', longIdeas);
+  
+  document.getElementById('longIdeaTitle').value = '';
+  document.getElementById('longIdeaContent').value = '';
+  
+  renderLongIdeas();
+  toast('✅ تم حفظ الفكرة المطولة');
+  addXP(5, 'فكرة مطولة جديدة');
+}
+
+function delLongIdea(i) {
+  if(!confirm('هل أنت متأكدة من حذف هذه الفكرة؟')) return;
+  longIdeas.splice(i, 1);
+  store.set('pl_longideas', longIdeas);
+  renderLongIdeas();
+}
+/* ================================================= */
+
 let ideas = store.get('pl_ideas', []);
 let ideaFilter = 'all';
 function renderIdeas(){
@@ -1231,26 +1375,18 @@ function renderVision(){
   checkAchievements();
 }
 
-// دالة إضافة صورة من الاستوديو مع ضغطها
-function addVision(){
-  const fileInput = document.getElementById('visionFile');
+function processImage(input) {
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
   const label = document.getElementById('visionLabel').value;
-
-  if (!fileInput.files || fileInput.files.length === 0) {
-    toast('⚠️ اختاري صورة أولاً من الاستوديو', 'warn');
-    return;
-  }
-
-  const file = fileInput.files[0];
   const reader = new FileReader();
   
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
-      // ضغط الصورة باستخدام Canvas
       const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 600; // أقصى عرض
-      const MAX_HEIGHT = 600; // أقصى ارتفاع
+      const MAX_WIDTH = 600;
+      const MAX_HEIGHT = 600;
       let width = img.width;
       let height = img.height;
 
@@ -1270,14 +1406,13 @@ function addVision(){
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
       
-      // تحويل الصورة إلى Base64 مضغوط (جودة 70%)
       const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
       visions.push({ url: compressedBase64, label: label });
       store.set('pl_visions', visions);
       
-      document.getElementById('visionFile').value = '';
       document.getElementById('visionLabel').value = '';
+      input.value = '';
       renderVision();
       addXP(3, 'صورة رؤية');
       toast('✅ تمت إضافة الصورة بنجاح');
@@ -1285,6 +1420,22 @@ function addVision(){
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+function addVisionUrl() {
+  const urlInput = document.getElementById('visionUrl').value.trim();
+  const label = document.getElementById('visionLabel').value;
+  if (!urlInput) {
+    toast('⚠️ الصقي رابط الصورة أولاً', 'warn');
+    return;
+  }
+  visions.push({ url: urlInput, label: label });
+  store.set('pl_visions', visions);
+  document.getElementById('visionUrl').value = '';
+  document.getElementById('visionLabel').value = '';
+  renderVision();
+  addXP(3, 'صورة رؤية');
+  toast('✅ تمت إضافة الصورة بالرابط');
 }
 
 function delVision(i){ visions.splice(i,1); store.set('pl_visions', visions); renderVision(); }
@@ -1870,7 +2021,7 @@ function setupPWA(){
   document.head.appendChild(manifestLink);
 
   const swCode = `
-    const CACHE = 'planner-ultra-v5';
+    const CACHE = 'planner-ultra-v8';
     const ASSETS = ['./', './index.html', 'https://cdn.jsdelivr.net/npm/chart.js'];
     self.addEventListener('install', e => {
       e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS).catch(()=>{})));
@@ -1885,15 +2036,15 @@ function setupPWA(){
     self.addEventListener('fetch', e => {
       if(e.request.method !== 'GET') return;
       e.respondWith(
-        caches.match(e.request).then(cached => {
-          if(cached) return cached;
-          return fetch(e.request).then(res => {
-            if(res.status === 200){
-              const clone = res.clone();
-              caches.open(CACHE).then(c => c.put(e.request, clone));
-            }
-            return res;
-          }).catch(() => {
+        fetch(e.request).then(res => {
+          if(res.status === 200){
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return res;
+        }).catch(() => {
+          return caches.match(e.request).then(cached => {
+            if(cached) return cached;
             if(e.request.headers.get('accept')?.includes('text/html')){
               return caches.match('./index.html');
             }
@@ -2017,6 +2168,7 @@ function toggleFocusTimer(){
 
 function init(){
   renderIdeas();
+  renderLongIdeas(); // تهيئة قسم الكتابة المطولة
   renderInspo();
   renderVision();
   renderGoals();
